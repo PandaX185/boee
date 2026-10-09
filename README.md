@@ -1,56 +1,65 @@
-# Welcome to your Expo app 👋
+# Back-of-Envelope Estimator
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for quick, trustworthy system-design estimates. Feed it a few
+assumptions — traffic, data shape, availability targets — and it derives the
+numbers that drive architecture (QPS, storage, bandwidth, cache footprint,
+server count) plus plain-language implications that cite the assumption behind
+them.
 
-## Get started
+The math is deterministic and the advice is rule-based, so the output is a
+starting point you can argue with, not a black box.
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+- Expo (React Native) + TypeScript
+- Expo Router, Zustand, AsyncStorage, Zod
+- Jest (`jest-expo`) + React Native Testing Library
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+npm install
+npm start        # dev server (then press i / a / w)
+npm run android
+npm run ios
+npm run web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Checks
 
-### Other setup steps
+```bash
+npm run lint
+npm run typecheck
+npm test
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Project layout
 
-## Learn more
+```
+src/
+  app/            Expo Router screens (routes live here)
+  core/           pure, UI-free engine: estimate, rules, constants, presets, export, format, nlp
+  domain/         types and Zod schemas (the input contract)
+  store/          Zustand scenario store backed by AsyncStorage
+  constants/      theme
+docs/
+  design.md       full design spec
+  decisions.md    decision log (ADRs)
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Only screens and layouts belong in `src/app`; everything else lives outside it.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## How it works
 
-## Join the community
+`Inputs + Constants -> estimate() -> DerivedMetrics -> deriveImplications()
+-> Implication[]`. The `{ DerivedMetrics, Implication[] }` pair is what the UI
+renders and the Markdown export serializes. The core has no UI or platform
+imports, so it is unit-testable and portable to another shell later.
 
-Join our community of developers creating universal apps.
+## Roadmap
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Wire the input form and results UI to the core.
+- Save / duplicate / compare / export flows.
+- Editable constants screen with sources.
+- Optional natural-language layer behind the `NlpProvider` seam (see
+  `docs/design.md`).
