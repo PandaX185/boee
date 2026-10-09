@@ -80,8 +80,15 @@ Then create a token at `expo.dev/settings/access-tokens` and store it:
 gh secret set EXPO_TOKEN --repo PandaX185/boee
 ```
 
-Without `EXPO_TOKEN`, the `android` job fails at the EAS step. `workflow_dispatch`
-on `release.yml` runs a build without attaching anything, for testing.
+Only the `android` job needs `EXPO_TOKEN` — `ci.yml` and the `web-build` job
+do not. So CI on `master` and the web bundle can both succeed while the APK job
+fails; a release with only `web-build.zip` means the Android job did not pass.
+Re-run it against the published tag to attach the APK without cutting a new
+release:
+
+```bash
+gh workflow run "Attach release assets" --repo PandaX185/boee -f tag=boee-v1.2.0
+```
 
 ## Local gates (Husky)
 
