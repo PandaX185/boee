@@ -13,8 +13,16 @@ export function describeMetrics(derived: DerivedMetrics): MetricDescriptor[] {
     { key: 'peakReadQps', label: 'Peak read QPS', value: formatQps(derived.peakReadQps) },
     { key: 'avgWriteQps', label: 'Avg write QPS', value: formatQps(derived.avgWriteQps) },
     { key: 'peakWriteQps', label: 'Peak write QPS', value: formatQps(derived.peakWriteQps) },
-    { key: 'storagePerDayBytes', label: 'Storage / day', value: formatBytes(derived.storagePerDayBytes) },
-    { key: 'storagePerYearBytes', label: 'Storage / year', value: formatBytes(derived.storagePerYearBytes) },
+    {
+      key: 'storagePerDayBytes',
+      label: 'Storage / day',
+      value: formatBytes(derived.storagePerDayBytes),
+    },
+    {
+      key: 'storagePerYearBytes',
+      label: 'Storage / year',
+      value: formatBytes(derived.storagePerYearBytes),
+    },
     {
       key: 'totalStorageBytes',
       label: 'Total retained',
@@ -30,7 +38,11 @@ export function describeMetrics(derived: DerivedMetrics): MetricDescriptor[] {
       label: 'Egress',
       value: `${formatBytes(derived.egressBytesPerSecond)}/s`,
     },
-    { key: 'cacheHotSetBytes', label: 'Cache hot set', value: formatBytes(derived.cacheHotSetBytes) },
+    {
+      key: 'cacheHotSetBytes',
+      label: 'Cache hot set',
+      value: formatBytes(derived.cacheHotSetBytes),
+    },
     { key: 'serverCount', label: 'Server count', value: `${derived.serverCount}` },
     {
       key: 'allowedDowntimeSecondsPerYear',

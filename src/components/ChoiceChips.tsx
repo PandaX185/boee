@@ -25,7 +25,9 @@ export function ChoiceChips<T>({ options, value, onChange }: Props<T>) {
             onPress={() => onChange(option.value)}
             style={[styles.chip, selected && styles.chipSelected]}
           >
-            <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{option.label}</Text>
+            <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+              {option.label}
+            </Text>
           </Pressable>
         );
       })}

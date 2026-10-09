@@ -58,12 +58,7 @@ export interface DerivedMetrics {
 export type ImplicationSeverity = 'info' | 'warning';
 
 export type ImplicationCategory =
-  | 'storage'
-  | 'scaling'
-  | 'caching'
-  | 'network'
-  | 'redundancy'
-  | 'growth';
+  'storage' | 'scaling' | 'caching' | 'network' | 'redundancy' | 'growth';
 
 export interface Implication {
   id: string;

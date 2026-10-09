@@ -1,0 +1,24 @@
+name: Attach web build
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  web-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform web --output-dir dist-web
+      - run: zip -r web-build.zip dist-web
+      - run: gh release upload ${{ github.event.release.tag_name }} web-build.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

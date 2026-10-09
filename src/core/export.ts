@@ -19,7 +19,9 @@ export function toMarkdown(scenario: Scenario, evaluation: Evaluation): string {
     `- Monthly growth: ${inputs.nonFunctional.monthlyGrowthRate}`,
   ];
 
-  const metricRows = describeMetrics(derived).map((metric) => `| ${metric.label} | ${metric.value} |`);
+  const metricRows = describeMetrics(derived).map(
+    (metric) => `| ${metric.label} | ${metric.value} |`,
+  );
 
   const implicationLines =
     implications.length > 0

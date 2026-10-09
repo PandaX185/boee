@@ -19,5 +19,6 @@ export const CONSTANT_SOURCES: Record<string, string> = {
   singleNodeWriteQps: 'Order-of-magnitude write throughput of a single relational primary.',
   cacheRamBytes: 'Assumed commodity server memory budget (64 GB).',
   nicBytesPerSecond: 'Commodity 1 Gbps network interface.',
-  hotWorkingSetFraction: '80/20 heuristic: the hottest ~20% of the daily read volume fits in cache.',
+  hotWorkingSetFraction:
+    '80/20 heuristic: the hottest ~20% of the daily read volume fits in cache.',
 };

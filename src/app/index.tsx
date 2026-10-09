@@ -15,16 +15,13 @@ export default function HomeScreen() {
   const removeScenario = useScenarioStore((state) => state.removeScenario);
   const duplicateScenario = useScenarioStore((state) => state.duplicateScenario);
 
-  const openScenario = (id: string) =>
-    router.push({ pathname: '/scenario/[id]', params: { id } });
+  const openScenario = (id: string) => router.push({ pathname: '/scenario/[id]', params: { id } });
 
   const renderScenario = ({ item }: { item: Scenario }) => (
     <View style={styles.card}>
       <Pressable style={styles.cardBody} onPress={() => openScenario(item.id)}>
         <Text style={styles.cardTitle}>{item.name}</Text>
-        <Text style={styles.cardMeta}>
-          Updated {new Date(item.updatedAt).toLocaleDateString()}
-        </Text>
+        <Text style={styles.cardMeta}>Updated {new Date(item.updatedAt).toLocaleDateString()}</Text>
       </Pressable>
       <View style={styles.cardActions}>
         <Pressable onPress={() => duplicateScenario(item.id)}>
@@ -52,7 +49,11 @@ export default function HomeScreen() {
             <Button label="Compare" variant="secondary" onPress={() => router.push('/compare')} />
           </View>
           <View style={styles.secondaryItem}>
-            <Button label="Constants" variant="secondary" onPress={() => router.push('/settings')} />
+            <Button
+              label="Constants"
+              variant="secondary"
+              onPress={() => router.push('/settings')}
+            />
           </View>
         </View>
       </View>

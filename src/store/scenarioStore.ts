@@ -19,8 +19,7 @@ export const useScenarioStore = create<ScenarioStore>()(
   persist(
     (set, get) => ({
       scenarios: [],
-      addScenario: (scenario) =>
-        set((state) => ({ scenarios: [...state.scenarios, scenario] })),
+      addScenario: (scenario) => set((state) => ({ scenarios: [...state.scenarios, scenario] })),
       updateScenario: (id, patch) =>
         set((state) => ({
           scenarios: state.scenarios.map((scenario) =>
