@@ -16,3 +16,8 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # A PAT (RELEASE_PLEASE_TOKEN) makes release-please's pushes and
+          # releases trigger downstream workflows (e.g. Attach release
+          # assets). Falls back to GITHUB_TOKEN, whose events do NOT trigger
+          # other workflows. See docs/ci-cd.md.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}

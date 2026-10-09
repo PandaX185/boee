@@ -26,8 +26,28 @@ Releases are automated with
 3. Merging the release PR bumps `package.json` **and** `app.json`
    (`expo.version`, via `extra-files`), writes `CHANGELOG.md`, creates the
    `v*` tag, and publishes a GitHub Release.
-4. `release.yml` then builds the production web bundle and attaches it to the
-   Release as `web-build.zip`.
+4. `release.yml` then builds the production web bundle and the Android APK and
+   attaches both to the Release.
+
+> **PAT required for step 4.** release-please runs with
+> `RELEASE_PLEASE_TOKEN` when set (falling back to `GITHUB_TOKEN`). GitHub
+> does not trigger new workflow runs from events caused by `GITHUB_TOKEN`,
+> so without a Personal Access Token the release is published but
+> `release.yml` never fires. Create a token with `contents: write` and
+> `pull-requests: write` and store it as the `RELEASE_PLEASE_TOKEN` repo
+> secret:
+>
+> ```bash
+> gh secret set RELEASE_PLEASE_TOKEN --repo PandaX185/boee
+> ```
+>
+> To backfill assets for an already-published release (or test a build
+> without releasing), dispatch `release.yml` manually with the tag:
+>
+> ```bash
+> gh workflow run "Attach release assets" --repo PandaX185/boee \
+>   -f tag=back-of-envelope-v1.1.0
+> ```
 
 There is intentionally no store pipeline: no EAS submit, no OTA update step.
 The Android job below builds an installable APK, but nothing uploads to
