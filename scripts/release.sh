@@ -134,7 +134,7 @@ node -e '
 ' "$NEXT"
 npx prettier --write package.json app.json >/dev/null
 
-git add package.json app.json
+git add package.json package-lock.json app.json
 git commit -m "chore(release): $TAG"
 git tag -a "$TAG" -m "$TAG"
 
