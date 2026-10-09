@@ -8,6 +8,7 @@ import { useScenarioStore } from '@/store/scenarioStore';
 jest.mock('@/store/hydration', () => ({
   useScenarioHydrated: () => true,
   useSettingsHydrated: () => true,
+  useBoot: () => ({ status: 'ready', retry: jest.fn(), resetSavedData: jest.fn() }),
 }));
 
 function seedTwo() {

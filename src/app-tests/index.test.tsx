@@ -21,6 +21,7 @@ jest.mock('@/services/confirm', () => ({
 jest.mock('@/store/hydration', () => ({
   useScenarioHydrated: () => true,
   useSettingsHydrated: () => true,
+  useBoot: () => ({ status: 'ready', retry: jest.fn(), resetSavedData: jest.fn() }),
 }));
 
 beforeEach(() => {

@@ -17,6 +17,7 @@ jest.mock('expo-router', () => ({
 jest.mock('@/store/hydration', () => ({
   useScenarioHydrated: () => true,
   useSettingsHydrated: () => true,
+  useBoot: () => ({ status: 'ready', retry: jest.fn(), resetSavedData: jest.fn() }),
 }));
 
 jest.mock('expo-clipboard', () => ({

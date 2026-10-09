@@ -6,6 +6,8 @@ import { createId } from '@/core/id';
 import { cloneInputs } from '@/core/scenarios';
 import type { Scenario } from '@/domain/types';
 
+export const SCENARIO_STORAGE_KEY = 'boe-scenarios';
+
 interface ScenarioStore {
   scenarios: Scenario[];
   addScenario: (scenario: Scenario) => void;
@@ -49,7 +51,7 @@ export const useScenarioStore = create<ScenarioStore>()(
       getScenario: (id) => get().scenarios.find((scenario) => scenario.id === id),
     }),
     {
-      name: 'boe-scenarios',
+      name: SCENARIO_STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

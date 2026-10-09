@@ -5,6 +5,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_CONSTANTS } from '@/core/constants';
 import type { Constants } from '@/domain/types';
 
+export const SETTINGS_STORAGE_KEY = 'boe-constants';
+
 interface SettingsStore {
   constants: Constants;
   setConstants: (constants: Constants) => void;
@@ -19,7 +21,7 @@ export const useSettingsStore = create<SettingsStore>()(
       resetConstants: () => set({ constants: DEFAULT_CONSTANTS }),
     }),
     {
-      name: 'boe-constants',
+      name: SETTINGS_STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

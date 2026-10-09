@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 jest.mock('@/store/hydration', () => ({
   useScenarioHydrated: () => true,
   useSettingsHydrated: () => true,
+  useBoot: () => ({ status: 'ready', retry: jest.fn(), resetSavedData: jest.fn() }),
 }));
 
 beforeEach(() => {
