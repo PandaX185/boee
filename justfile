@@ -71,6 +71,14 @@ apk:
 apk-prod:
     npx eas-cli build --platform android --profile production
 
+# Publish a release: bump (patch|minor|major|x.y.z), commit, tag, push, create GitHub Release
+release bump:
+    bash scripts/release.sh {{bump}}
+
+# Preview the target release version without changing anything
+release-dry bump:
+    bash scripts/release.sh --dry-run {{bump}}
+
 # Remove generated artifacts and dependencies
 clean:
     npm run clean

@@ -37,9 +37,22 @@ fix: handle zero retention days in estimate
 docs: explain hot working-set fraction
 ```
 
-`commit-msg` rejects anything else, because `release-please` builds the
-changelog and version bumps from these messages. `pre-commit` auto-formats and
-lints staged files; `pre-push` runs typecheck + tests.
+`commit-msg` rejects anything else, because GitHub's auto-generated release
+notes group commits by these types. `pre-commit` auto-formats and lints staged
+files; `pre-push` runs typecheck + tests.
+
+## Releases
+
+Cut a release from a clean, up-to-date `master`:
+
+```bash
+just release patch      # or minor | major
+just release 1.2.0      # or an explicit version
+just release-dry minor  # preview the target version, change nothing
+```
+
+The recipe bumps `package.json` + `app.json`, commits, tags `boee-vX.Y.Z`,
+pushes, and publishes the GitHub Release (see `docs/ci-cd.md`).
 
 ## Tests
 

@@ -51,12 +51,12 @@ they are configuration, never secrets. See `docs/secrets.md`.
   (enforced by commitlint on `commit-msg`).
 - `pre-commit` auto-formats/lints staged files and scans for secrets;
   `pre-push` runs typecheck + tests.
-- `release-please` opens release PRs from conventional commits; merging one
-  bumps `package.json` and `app.json`, updates `CHANGELOG.md`, tags `v*`, and
-  publishes a GitHub Release with a web build **and an installable Android APK**
-  (built with EAS, `preview` profile) attached. See `docs/ci-cd.md`. The APK
-  job needs an `EXPO_TOKEN` repo secret; see `docs/ci-cd.md` for the one-time
-  Expo setup.
+- Cut a release from a clean `master` with `just release patch|minor|major`
+  (or an explicit version). It bumps `package.json` and `app.json`, tags
+  `boee-v*`, pushes, and publishes a GitHub Release with auto-generated notes —
+  which then attaches a web build **and an installable Android APK** (built
+  with EAS, `preview` profile). See `docs/ci-cd.md`. The APK job needs an
+  `EXPO_TOKEN` repo secret; see `docs/ci-cd.md` for the one-time Expo setup.
 
 ## Project layout
 

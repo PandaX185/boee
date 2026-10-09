@@ -16,40 +16,38 @@ branches. Node comes from `.nvmrc`; npm cache is enabled.
 
 ## Releases (GitHub Releases only)
 
-Releases are automated with
-[release-please](https://github.com/googleapis/release-please):
+Releases are cut locally with `just release` (`scripts/release.sh`). There is
+no release-please step and no release PR.
 
 1. Write commits in [Conventional Commits](https://www.conventionalcommits.org/)
    format (`feat:`, `fix:`, `docs:`, …). commitlint enforces this locally.
-2. On push to `master`, `release-please.yml` opens or updates a release PR
-   with the changelog.
-3. Merging the release PR bumps `package.json` **and** `app.json`
-   (`expo.version`, via `extra-files`), writes `CHANGELOG.md`, creates the
-   `boee-v*` tag, and publishes a GitHub Release.
-4. `release.yml` then builds the production web bundle and the Android APK and
-   attaches both to the Release.
+2. From a clean, up-to-date `master`, run:
 
-> **PAT required for step 4.** release-please runs with
-> `RELEASE_PLEASE_TOKEN` when set (falling back to `GITHUB_TOKEN`). GitHub
-> does not trigger new workflow runs from events caused by `GITHUB_TOKEN`,
-> so without a Personal Access Token the release is published but
-> `release.yml` never fires. Create a token with `contents: write` and
-> `pull-requests: write` and store it as the `RELEASE_PLEASE_TOKEN` repo
-> secret:
->
-> ```bash
-> gh secret set RELEASE_PLEASE_TOKEN --repo PandaX185/boee
-> ```
->
-> To backfill assets for an already-published release (or test a build
-> without releasing), dispatch `release.yml` manually with the tag:
->
-> ```bash
-> gh workflow run "Attach release assets" --repo PandaX185/boee \
->   -f tag=boee-v1.2.0
-> ```
->
-> (The pre-rename `v1.1.0` release is tagged `back-of-envelope-v1.1.0`.)
+   ```bash
+   just release patch      # or minor | major
+   just release 1.2.0      # or an explicit version
+   just release-dry minor  # preview the target version, change nothing
+   ```
+
+3. The recipe bumps `package.json` **and** `app.json` (`expo.version`),
+   commits `chore(release): boee-vX.Y.Z`, tags `boee-vX.Y.Z`, and pushes both.
+   The `pre-push` hook runs typecheck + tests before the push leaves.
+4. It then publishes the GitHub Release (`gh release create --generate-notes`),
+   which fires `release.yml` to build and attach the production web bundle and
+   the Android APK.
+
+> Release notes come from GitHub's auto-generated notes (grouped merged PRs and
+> commits); there is no `CHANGELOG.md` to maintain.
+
+To backfill assets for an already-published release (or test a build without
+releasing), dispatch `release.yml` manually with the tag:
+
+```bash
+gh workflow run "Attach release assets" --repo PandaX185/boee \
+  -f tag=boee-v1.2.0
+```
+
+(The pre-rename `v1.1.0` release is tagged `back-of-envelope-v1.1.0`.)
 
 There is intentionally no store pipeline: no EAS submit, no OTA update step.
 The Android job below builds an installable APK, but nothing uploads to
@@ -65,7 +63,7 @@ Every published GitHub Release also gets an installable Android APK:
 2. It downloads the APK and attaches it to the Release as `boee-<tag>.apk`,
    and appends the EAS build-page link to the release notes.
 3. `appVersionSource: remote` + `autoIncrement: true` in `eas.json` keep the
-   Android `versionCode` bumping automatically while release-please owns the
+   Android `versionCode` bumping automatically while `just release` owns the
    human-readable `expo.version`.
 
 One-time setup (all manual, needs an Expo account):
@@ -105,4 +103,4 @@ GitHub Actions. Each PR runs the full CI gate before merge.
 ## Task runner
 
 `justfile` wraps the common commands (`just setup|start|check|test|coverage|
-secrets|bundle-web|…`). Run `just` with no arguments to list them.
+release|secrets|bundle-web|…`). Run `just` with no arguments to list them.
