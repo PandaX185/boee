@@ -25,7 +25,7 @@ Releases are automated with
    with the changelog.
 3. Merging the release PR bumps `package.json` **and** `app.json`
    (`expo.version`, via `extra-files`), writes `CHANGELOG.md`, creates the
-   `v*` tag, and publishes a GitHub Release.
+   `boee-v*` tag, and publishes a GitHub Release.
 4. `release.yml` then builds the production web bundle and the Android APK and
    attaches both to the Release.
 
@@ -46,8 +46,10 @@ Releases are automated with
 >
 > ```bash
 > gh workflow run "Attach release assets" --repo PandaX185/boee \
->   -f tag=back-of-envelope-v1.1.0
+>   -f tag=boee-v1.2.0
 > ```
+>
+> (The pre-rename `v1.1.0` release is tagged `back-of-envelope-v1.1.0`.)
 
 There is intentionally no store pipeline: no EAS submit, no OTA update step.
 The Android job below builds an installable APK, but nothing uploads to

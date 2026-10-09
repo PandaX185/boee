@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "back-of-envelope",
+    "name": "BOEE",
     "slug": "back-of-envelope",
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "backofenvelope",
+    "scheme": "boee",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
@@ -32,7 +32,7 @@
         {
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160
         }
       ],
       "expo-sharing"

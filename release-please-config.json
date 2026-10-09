@@ -3,7 +3,7 @@
   "release-type": "node",
   "packages": {
     ".": {
-      "package-name": "back-of-envelope",
+      "package-name": "boee",
       "bump-minor-pre-major": true,
       "extra-files": [
         {

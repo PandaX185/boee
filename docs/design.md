@@ -1,4 +1,4 @@
-# Back-of-Envelope Estimator — Design
+# BOEE (Back of Envelope Estimator) — Design
 
 Date: 2026-10-09
 Status: Accepted for v1

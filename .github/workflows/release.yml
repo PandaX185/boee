@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing release tag to attach assets to (e.g. back-of-envelope-v1.1.0)'
+        description: 'Existing release tag to attach assets to (e.g. boee-v1.2.0)'
         required: false
         default: ''
 

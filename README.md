@@ -1,6 +1,7 @@
-# Back-of-Envelope Estimator
+# BOEE
 
-A mobile app for quick, trustworthy system-design estimates. Feed it a few
+**Back of Envelope Estimator.** A mobile app for quick, trustworthy
+system-design estimates. Feed it a few
 assumptions — traffic, data shape, availability targets — and it derives the
 numbers that drive architecture (QPS, storage, bandwidth, cache footprint,
 server count) plus plain-language implications that cite the assumption behind

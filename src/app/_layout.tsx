@@ -6,7 +6,7 @@ export default function RootLayout() {
     <>
       <StatusBar style="auto" />
       <Stack>
-        <Stack.Screen name="index" options={{ title: 'Back of Envelope' }} />
+        <Stack.Screen name="index" options={{ title: 'BOEE' }} />
         <Stack.Screen name="new" options={{ title: 'New estimate' }} />
         <Stack.Screen name="scenario/[id]" options={{ title: 'Estimate' }} />
         <Stack.Screen name="compare" options={{ title: 'Compare' }} />
