@@ -45,17 +45,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - run: npm ci
       - name: Build APK with EAS
-        run: |
-          code=0
-          eas build --platform android --profile preview --non-interactive --wait --json > /tmp/eas-build.json 2> /tmp/eas.log || code=$?
-          tail -c 20000 /tmp/eas.log > /tmp/eas-debug.log
-          echo "exit code: $code" >> /tmp/eas-debug.log
-          exit "$code"
-      - name: Upload EAS log on failure
-        if: failure() && env.TAG != ''
-        run: gh release upload "$TAG" /tmp/eas-debug.log --clobber
-        env:
-          GH_TOKEN: ${{ github.token }}
+        run: eas build --platform android --profile preview --non-interactive --wait --json > /tmp/eas-build.json
       - name: Attach APK to release
         if: env.TAG != ''
         run: |
