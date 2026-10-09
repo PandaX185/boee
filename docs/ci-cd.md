@@ -59,12 +59,38 @@ the same tags.
 Every published GitHub Release also gets an installable Android APK:
 
 1. The `android` job in `release.yml` runs `eas build --platform android
---profile preview` (internal distribution, `buildType: apk` per `eas.json`).
+--profile preview` (internal distribution, arm64-only APK per `eas.json`).
 2. It downloads the APK and attaches it to the Release as `boee-<tag>.apk`,
    and appends the EAS build-page link to the release notes.
 3. `appVersionSource: remote` + `autoIncrement: true` in `eas.json` keep the
    Android `versionCode` bumping automatically while `just release` owns the
    human-readable `expo.version`.
+
+### APK size
+
+Left to defaults, an EAS `apk` build is a **universal APK**: it bundles all four
+Android ABIs (`armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`) and ships unminified
+bytecode. That pushed the internal APK to ~105 MB even though assets are ~80 KB.
+
+Two settings keep it small:
+
+- `expo-build-properties` (in `app.json`) turns on R8 minification and resource
+  shrinking for release builds (`enableMinifyInReleaseBuilds`,
+  `enableShrinkResourcesInReleaseBuilds`), cutting the DEX payload from ~44 MB
+  to a few MB. This applies to every Android build, including a future Play AAB.
+- The `preview` profile in `eas.json` overrides the Gradle architectures to
+  `arm64-v8a` only via
+  `gradleCommand: ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"`.
+  This drops the emulator/legacy ABIs (~58 MB) **only for the preview APK**.
+
+The restriction is deliberately scoped to `preview`, because a Play **AAB** must
+keep all ABIs so the store can serve each device. The `production` profile is
+left untouched (no `buildArchs`/`gradleCommand`), so it stays universal.
+
+Tradeoffs: the preview APK now installs only on 64-bit ARM devices (i.e. every
+phone from ~2015 on; no x86 emulator support). If you need an emulator build,
+add `,x86_64` to `reactNativeArchitectures`. R8 can occasionally break
+reflection-based libraries, so smoke-test the installed APK after enabling it.
 
 One-time setup (all manual, needs an Expo account):
 
