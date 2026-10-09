@@ -1,8 +1,9 @@
-name: Attach web build
+name: Attach release assets
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,6 +11,7 @@ permissions:
 jobs:
   web-build:
     runs-on: ubuntu-latest
+    if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,5 +22,35 @@ jobs:
       - run: npx expo export --platform web --output-dir dist-web
       - run: zip -r web-build.zip dist-web
       - run: gh release upload ${{ github.event.release.tag_name }} web-build.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  android:
+    name: Android APK (EAS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - name: Build APK with EAS
+        run: eas build --platform android --profile preview --non-interactive --wait --json > /tmp/eas-build.json
+      - name: Attach APK to release
+        if: github.event_name == 'release'
+        run: |
+          ARTIFACT_URL=$(node -p "require('/tmp/eas-build.json')[0].artifacts.applicationArchiveUrl")
+          curl -sSL "$ARTIFACT_URL" -o "boee-${{ github.event.release.tag_name }}.apk"
+          gh release upload ${{ github.event.release.tag_name }} "boee-${{ github.event.release.tag_name }}.apk" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Link EAS build in release notes
+        if: github.event_name == 'release'
+        run: |
+          BUILD_URL=$(node -p "require('/tmp/eas-build.json')[0].artifacts.buildUrl")
+          gh release view ${{ github.event.release.tag_name }} --json body --jq .body > /tmp/notes.md
+          printf '\nAndroid APK built with EAS: %s\n' "$BUILD_URL" >> /tmp/notes.md
+          gh release edit ${{ github.event.release.tag_name }} --notes-file /tmp/notes.md
         env:
           GH_TOKEN: ${{ github.token }}

@@ -63,6 +63,14 @@ secrets:
 bundle-web:
     npm run bundle-web
 
+# Build a local Android APK via EAS (needs: npx eas-cli login)
+apk:
+    npx eas-cli build --platform android --profile preview
+
+# Build a local Android AAB for Play via EAS
+apk-prod:
+    npx eas-cli build --platform android --profile production
+
 # Remove generated artifacts and dependencies
 clean:
     npm run clean

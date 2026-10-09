@@ -52,7 +52,10 @@ they are configuration, never secrets. See `docs/secrets.md`.
   `pre-push` runs typecheck + tests.
 - `release-please` opens release PRs from conventional commits; merging one
   bumps `package.json` and `app.json`, updates `CHANGELOG.md`, tags `v*`, and
-  publishes a GitHub Release with a web build attached. See `docs/ci-cd.md`.
+  publishes a GitHub Release with a web build **and an installable Android APK**
+  (built with EAS, `preview` profile) attached. See `docs/ci-cd.md`. The APK
+  job needs an `EXPO_TOKEN` repo secret; see `docs/ci-cd.md` for the one-time
+  Expo setup.
 
 ## Project layout
 

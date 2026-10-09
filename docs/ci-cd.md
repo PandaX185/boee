@@ -29,9 +29,39 @@ Releases are automated with
 4. `release.yml` then builds the production web bundle and attaches it to the
    Release as `web-build.zip`.
 
-There is intentionally no store pipeline: no EAS build/submit, no OTA update
-step. If a store release is needed later, add an EAS workflow on top of the
-same tags.
+There is intentionally no store pipeline: no EAS submit, no OTA update step.
+The Android job below builds an installable APK, but nothing uploads to
+Google Play. If a store release is needed later, add `eas submit` on top of
+the same tags.
+
+## Android APK via EAS
+
+Every published GitHub Release also gets an installable Android APK:
+
+1. The `android` job in `release.yml` runs `eas build --platform android
+--profile preview` (internal distribution, `buildType: apk` per `eas.json`).
+2. It downloads the APK and attaches it to the Release as `boee-<tag>.apk`,
+   and appends the EAS build-page link to the release notes.
+3. `appVersionSource: remote` + `autoIncrement: true` in `eas.json` keep the
+   Android `versionCode` bumping automatically while release-please owns the
+   human-readable `expo.version`.
+
+One-time setup (all manual, needs an Expo account):
+
+```bash
+npx eas-cli login
+npx eas-cli init        # creates the Expo project, writes extra.eas.projectId
+npx eas-cli build --platform android --profile preview   # first build: generates the Android keystore, verifies the APK installs
+```
+
+Then create a token at `expo.dev/settings/access-tokens` and store it:
+
+```bash
+gh secret set EXPO_TOKEN --repo PandaX185/boee
+```
+
+Without `EXPO_TOKEN`, the `android` job fails at the EAS step. `workflow_dispatch`
+on `release.yml` runs a build without attaching anything, for testing.
 
 ## Local gates (Husky)
 
