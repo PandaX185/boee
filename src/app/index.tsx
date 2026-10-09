@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandHeader } from '@/components/BrandHeader';
 import { Button } from '@/components/Button';
 import { colors, radius, spacing } from '@/constants/theme';
 import type { Scenario } from '@/domain/types';
@@ -42,6 +43,9 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <View style={styles.header}>
+        <BrandHeader />
+      </View>
       <View style={styles.actions}>
         <Button label="New estimate" onPress={() => router.push('/new')} />
         <View style={styles.secondaryRow}>
@@ -79,6 +83,10 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  header: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
   },
   actions: {
     padding: spacing.md,
