@@ -33,6 +33,16 @@ describe('IsometricScene', () => {
     expect(onSelect).toHaveBeenCalledWith('traffic');
   });
 
+  it('shows edge labels on wide stages', async () => {
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(false);
+    await render(<IsometricScene model={model} selected={null} onSelect={jest.fn()} />);
+
+    await fireEvent(screen.getByTestId('system-scene-stage'), 'layout', {
+      nativeEvent: { layout: { width: 800, height: 300 } },
+    });
+    expect(screen.getAllByText(/\/s$/).length).toBeGreaterThan(0);
+  });
+
   it('clears the selection from the stage background', async () => {
     const onSelect = jest.fn();
     await render(<IsometricScene model={model} selected="servers" onSelect={onSelect} />);

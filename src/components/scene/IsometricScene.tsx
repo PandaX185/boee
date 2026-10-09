@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
+  FadeInDown,
   cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
@@ -12,19 +13,18 @@ import Animated, {
 import { PressableScale } from '@/components/motion/PressableScale';
 import { useAppActive } from '@/components/motion/useAppActive';
 import { usePrefersReducedMotion } from '@/components/motion/reducedMotion';
-import {
-  NODE_HEIGHT,
-  NODE_LAYOUT,
-  NODE_WIDTH,
-  PRESSURE_COLOR,
-  SCENE_HEIGHT,
-  type Point,
-} from '@/components/scene/sceneLayout';
+import { layoutScene, type SceneRect } from '@/components/scene/responsiveLayout';
+import { PRESSURE_COLOR, SCENE_HEIGHT } from '@/components/scene/sceneLayout';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import type { SceneEdge, SceneModel, SceneNode, SceneNodeId } from '@/core/scene';
 
 const EDGE_THICKNESS = 2;
 const FALLBACK_WIDTH = 360;
+
+interface Point {
+  x: number;
+  y: number;
+}
 
 interface Props {
   model: SceneModel;
@@ -47,20 +47,25 @@ export function IsometricScene({
   const active = animate && appActive && !reduced;
   const layoutWidth = width || FALLBACK_WIDTH;
 
+  const layout = useMemo(() => {
+    const ids = model.nodes.map((node) => node.id);
+    return layoutScene(layoutWidth, ids, height);
+  }, [model.nodes, layoutWidth, height]);
+
   const points = useMemo(() => {
     const map = new Map<SceneNodeId, Point>();
     for (const node of model.nodes) {
-      const layout = NODE_LAYOUT[node.id];
-      map.set(node.id, { x: layout.x * layoutWidth, y: layout.y * height });
+      const rect = layout.rects[node.id];
+      map.set(node.id, { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 });
     }
     return map;
-  }, [model.nodes, layoutWidth, height]);
+  }, [model.nodes, layout]);
 
   const pointOf = (id: SceneNodeId): Point => points.get(id) ?? { x: 0, y: 0 };
 
   return (
     <View
-      style={[styles.stage, { height }]}
+      style={[styles.stage, { height: layout.height }]}
       testID="system-scene-stage"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >
@@ -76,23 +81,27 @@ export function IsometricScene({
           from={pointOf(edge.from)}
           to={pointOf(edge.to)}
           active={active}
+          showLabel={layout.showEdgeLabels}
         />
       ))}
-      {model.nodes.map((node) => {
-        const layout = NODE_LAYOUT[node.id];
+      {model.nodes.map((node, index) => {
+        const rect: SceneRect = layout.rects[node.id];
         return (
-          <View
+          <Animated.View
             key={node.id}
+            entering={FadeInDown.delay(index * 70).duration(320)}
             style={[
               styles.nodeWrap,
               {
-                left: layout.x * layoutWidth - NODE_WIDTH / 2,
-                top: layout.y * height - NODE_HEIGHT / 2,
+                left: rect.x,
+                top: rect.y,
+                width: rect.width,
+                height: rect.height,
               },
             ]}
           >
             <SceneNodeCard node={node} selected={selected === node.id} onSelect={onSelect} />
-          </View>
+          </Animated.View>
         );
       })}
     </View>
@@ -104,9 +113,10 @@ interface EdgeProps {
   from: Point;
   to: Point;
   active: boolean;
+  showLabel: boolean;
 }
 
-function SceneEdgeView({ edge, from, to, active }: EdgeProps) {
+function SceneEdgeView({ edge, from, to, active, showLabel }: EdgeProps) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   const length = Math.hypot(dx, dy);
@@ -131,11 +141,13 @@ function SceneEdgeView({ edge, from, to, active }: EdgeProps) {
       >
         {active ? <FlowDot length={length} color={color} /> : null}
       </View>
-      <View style={[styles.edgeLabelWrap, { left: centerX, top: centerY }]}>
-        <Text style={styles.edgeLabel}>
-          {edge.direction === 'forward' ? edge.label : `↺ ${edge.label}`}
-        </Text>
-      </View>
+      {showLabel ? (
+        <View style={[styles.edgeLabelWrap, { left: centerX, top: centerY }]}>
+          <Text style={styles.edgeLabel}>
+            {edge.direction === 'forward' ? edge.label : `↺ ${edge.label}`}
+          </Text>
+        </View>
+      ) : null}
     </>
   );
 }
@@ -228,8 +240,6 @@ const styles = StyleSheet.create({
   },
   nodeWrap: {
     position: 'absolute',
-    width: NODE_WIDTH,
-    height: NODE_HEIGHT,
   },
   node: {
     flex: 1,

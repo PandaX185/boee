@@ -1,19 +1,21 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Reveal } from '@/components/motion/Reveal';
 import { colors, elevation, radius, spacing, typography } from '@/constants/theme';
 
 interface Props {
   title: string;
   children: ReactNode;
+  delay?: number;
 }
 
-export function Section({ title, children }: Props) {
+export function Section({ title, children, delay = 0 }: Props) {
   return (
-    <View style={styles.section}>
+    <Reveal delay={delay} style={styles.section}>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.body}>{children}</View>
-    </View>
+    </Reveal>
   );
 }
 

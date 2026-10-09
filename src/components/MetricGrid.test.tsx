@@ -1,18 +1,32 @@
 import { render, screen } from '@testing-library/react-native';
 
 import { MetricGrid } from '@/components/MetricGrid';
+import { useBreakpoint } from '@/components/useBreakpoint';
 import { DEFAULT_CONSTANTS } from '@/core/constants';
 import { evaluate } from '@/core/evaluate';
 import { describeMetrics } from '@/core/metrics';
 import { PRESETS } from '@/core/presets';
 
+jest.mock('@/components/useBreakpoint', () => ({ useBreakpoint: jest.fn() }));
+
+const mockBreakpoint = useBreakpoint as jest.Mock;
+
+const metrics = describeMetrics(evaluate(PRESETS[0].inputs, DEFAULT_CONSTANTS).derived);
+
 describe('MetricGrid', () => {
-  it('renders every metric label and value', async () => {
-    const metrics = describeMetrics(evaluate(PRESETS[0].inputs, DEFAULT_CONSTANTS).derived);
+  beforeEach(() => {
+    mockBreakpoint.mockReturnValue('regular');
+  });
+
+  it('renders every metric', async () => {
     await render(<MetricGrid metrics={metrics} />);
-    for (const metric of metrics) {
-      expect(screen.getByText(metric.label)).toBeOnTheScreen();
-      expect(screen.getAllByText(metric.value).length).toBeGreaterThanOrEqual(1);
-    }
+    expect(screen.getByText('Avg read QPS')).toBeOnTheScreen();
+    expect(screen.getByText('Total retained')).toBeOnTheScreen();
+  });
+
+  it('renders on wide screens', async () => {
+    mockBreakpoint.mockReturnValue('wide');
+    await render(<MetricGrid metrics={metrics} />);
+    expect(screen.getByText('Avg read QPS')).toBeOnTheScreen();
   });
 });

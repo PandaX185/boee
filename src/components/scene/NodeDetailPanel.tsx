@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { PRESSURE_COLOR } from '@/components/scene/sceneLayout';
+import { useBreakpoint } from '@/components/useBreakpoint';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import type { SceneNode } from '@/core/scene';
 import type { Implication } from '@/domain/types';
@@ -14,6 +15,7 @@ interface Props {
 
 export function NodeDetailPanel({ node, implications, onClose }: Props) {
   const color = PRESSURE_COLOR[node.pressure];
+  const breakpoint = useBreakpoint();
 
   return (
     <Animated.View
@@ -39,7 +41,10 @@ export function NodeDetailPanel({ node, implications, onClose }: Props) {
 
       <View style={styles.metrics}>
         {node.metrics.map((metric) => (
-          <View key={metric.key} style={styles.metric}>
+          <View
+            key={metric.key}
+            style={[styles.metric, breakpoint === 'compact' && styles.metricFull]}
+          >
             <Text style={styles.metricValue}>{metric.value}</Text>
             <Text style={styles.metricLabel}>{metric.label}</Text>
           </View>
@@ -112,6 +117,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.sm,
     gap: 2,
+  },
+  metricFull: {
+    flexBasis: '100%',
   },
   metricValue: {
     ...typography.bodyStrong,

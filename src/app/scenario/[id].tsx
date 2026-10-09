@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { BootError, BootLoading } from '@/components/BootState';
 import { Button } from '@/components/Button';
 import { ChoiceChips } from '@/components/ChoiceChips';
 import { ImplicationList } from '@/components/ImplicationList';
@@ -11,15 +12,16 @@ import { Section } from '@/components/Section';
 import { SizeField } from '@/components/SizeField';
 import { SliderField } from '@/components/SliderField';
 import { SystemScene } from '@/components/scene/SystemScene';
-import { colors, spacing } from '@/constants/theme';
+import { colors, layout, spacing } from '@/constants/theme';
 import { evaluate } from '@/core/evaluate';
 import { toMarkdown } from '@/core/export';
 import { describeMetrics } from '@/core/metrics';
 import { buildScene } from '@/core/scene';
 import { cloneInputs } from '@/core/scenarios';
 import type { Constants, Inputs, Scenario } from '@/domain/types';
+import { confirmDestructive } from '@/services/confirm';
 import { copyMarkdown, shareMarkdown, slugifyFileBase } from '@/services/shareScenario';
-import { useScenarioHydrated, useSettingsHydrated } from '@/store/hydration';
+import { useBoot } from '@/store/hydration';
 import { useScenarioStore } from '@/store/scenarioStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -37,13 +39,26 @@ interface Draft {
 
 export default function ScenarioScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const hydrated = useScenarioHydrated();
-  const settingsHydrated = useSettingsHydrated();
+  const boot = useBoot();
   const scenario = useScenarioStore((state) => state.scenarios.find((item) => item.id === id));
   const constants = useSettingsStore((state) => state.constants);
 
-  if (!hydrated || !settingsHydrated) {
-    return <Centered text="Loading…" />;
+  if (boot.status === 'loading') {
+    return <BootLoading />;
+  }
+  if (boot.status === 'failed') {
+    return (
+      <BootError
+        onRetry={boot.retry}
+        onReset={() =>
+          confirmDestructive(
+            'Reset saved data',
+            'Delete all saved estimates and constants on this device?',
+            boot.resetSavedData,
+          )
+        }
+      />
+    );
   }
   if (!scenario) {
     return <Centered text="This estimate no longer exists." />;
@@ -112,7 +127,7 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Section title="Scenario">
+      <Section title="Scenario" delay={0}>
         <TextInput
           style={styles.nameInput}
           value={draft.name}
@@ -122,7 +137,7 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
       </Section>
 
-      <Section title="Traffic">
+      <Section title="Traffic" delay={60}>
         <NumberField
           label="Daily active users"
           value={draft.inputs.traffic.dailyActiveUsers}
@@ -151,7 +166,7 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
       </Section>
 
-      <Section title="Data shape">
+      <Section title="Data shape" delay={120}>
         <SizeField
           label="Average object size"
           value={draft.inputs.dataShape.objectSizeBytes}
@@ -184,7 +199,7 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
       </Section>
 
-      <Section title="Non-functional">
+      <Section title="Non-functional" delay={180}>
         <Text style={styles.fieldLabel}>Availability target</Text>
         <ChoiceChips
           options={AVAILABILITY}
@@ -202,19 +217,19 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
       </Section>
 
-      <Section title="System">
+      <Section title="System" delay={240}>
         <SystemScene model={scene} implications={evaluation.implications} />
       </Section>
 
-      <Section title="Derived estimates">
+      <Section title="Derived estimates" delay={300}>
         <MetricGrid metrics={describeMetrics(evaluation.derived)} />
       </Section>
 
-      <Section title="Implications">
+      <Section title="Implications" delay={360}>
         <ImplicationList implications={evaluation.implications} />
       </Section>
 
-      <Section title="Export">
+      <Section title="Export" delay={420}>
         <View style={styles.exportRow}>
           <View style={styles.exportItem}>
             <Button
@@ -246,6 +261,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
     padding: spacing.md,
     gap: spacing.md,
   },

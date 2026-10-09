@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { UpdateButton } from '@/components/UpdateButton';
 import { colors } from '@/constants/theme';
 
 export default function RootLayout() {
@@ -13,6 +14,7 @@ export default function RootLayout() {
           headerTintColor: colors.text,
           headerTitleStyle: { color: colors.text },
           contentStyle: { backgroundColor: colors.background },
+          headerRight: () => <UpdateButton />,
         }}
       >
         <Stack.Screen name="index" options={{ title: 'BOEE' }} />

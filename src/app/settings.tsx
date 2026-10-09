@@ -1,24 +1,40 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { BootError, BootLoading } from '@/components/BootState';
 import { Button } from '@/components/Button';
 import { NumberField } from '@/components/NumberField';
 import { Section } from '@/components/Section';
 import { SizeField } from '@/components/SizeField';
 import { SliderField } from '@/components/SliderField';
-import { colors, spacing } from '@/constants/theme';
+import { colors, layout, spacing } from '@/constants/theme';
 import { CONSTANT_SOURCES } from '@/core/constants';
 import type { InfrastructureConstants } from '@/domain/types';
-import { useSettingsHydrated } from '@/store/hydration';
+import { confirmDestructive } from '@/services/confirm';
+import { useBoot } from '@/store/hydration';
 import { useSettingsStore } from '@/store/settingsStore';
 
 export default function SettingsScreen() {
-  const hydrated = useSettingsHydrated();
+  const boot = useBoot();
   const constants = useSettingsStore((state) => state.constants);
   const setConstants = useSettingsStore((state) => state.setConstants);
   const resetConstants = useSettingsStore((state) => state.resetConstants);
 
-  if (!hydrated) {
-    return <Text style={styles.message}>Loading…</Text>;
+  if (boot.status === 'loading') {
+    return <BootLoading />;
+  }
+  if (boot.status === 'failed') {
+    return (
+      <BootError
+        onRetry={boot.retry}
+        onReset={() =>
+          confirmDestructive(
+            'Reset saved data',
+            'Delete all saved estimates and constants on this device?',
+            boot.resetSavedData,
+          )
+        }
+      />
+    );
   }
 
   const patchInfra = (patch: Partial<InfrastructureConstants>) =>
@@ -30,7 +46,7 @@ export default function SettingsScreen() {
         These editable assumptions drive the implications. Each value notes what it represents.
       </Text>
 
-      <Section title="Throughput">
+      <Section title="Throughput" delay={0}>
         <NumberField
           label="Server QPS capacity"
           value={constants.infrastructure.serverQpsCapacity}
@@ -51,7 +67,7 @@ export default function SettingsScreen() {
         />
       </Section>
 
-      <Section title="Storage and network">
+      <Section title="Storage and network" delay={90}>
         <SizeField
           label="Cache RAM budget"
           value={constants.infrastructure.cacheRamBytes}
@@ -88,6 +104,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
     padding: spacing.md,
     gap: spacing.md,
   },

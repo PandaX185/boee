@@ -2,24 +2,44 @@ import { router } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BootError, BootLoading } from '@/components/BootState';
 import { BrandHeader } from '@/components/BrandHeader';
 import { Button } from '@/components/Button';
-import { colors, radius, spacing } from '@/constants/theme';
+import { Reveal } from '@/components/motion/Reveal';
+import { colors, layout, radius, spacing } from '@/constants/theme';
 import type { Scenario } from '@/domain/types';
 import { confirmDestructive } from '@/services/confirm';
-import { useScenarioHydrated } from '@/store/hydration';
+import { useBoot } from '@/store/hydration';
 import { useScenarioStore } from '@/store/scenarioStore';
 
 export default function HomeScreen() {
-  const hydrated = useScenarioHydrated();
+  const boot = useBoot();
   const scenarios = useScenarioStore((state) => state.scenarios);
   const removeScenario = useScenarioStore((state) => state.removeScenario);
   const duplicateScenario = useScenarioStore((state) => state.duplicateScenario);
 
   const openScenario = (id: string) => router.push({ pathname: '/scenario/[id]', params: { id } });
 
-  const renderScenario = ({ item }: { item: Scenario }) => (
-    <View style={styles.card}>
+  if (boot.status === 'loading') {
+    return <BootLoading />;
+  }
+  if (boot.status === 'failed') {
+    return (
+      <BootError
+        onRetry={boot.retry}
+        onReset={() =>
+          confirmDestructive(
+            'Reset saved data',
+            'Delete all saved estimates and constants on this device?',
+            boot.resetSavedData,
+          )
+        }
+      />
+    );
+  }
+
+  const renderScenario = ({ item, index }: { item: Scenario; index: number }) => (
+    <Reveal delay={Math.min(index, 8) * 50} style={styles.card}>
       <Pressable style={styles.cardBody} onPress={() => openScenario(item.id)}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={styles.cardMeta}>Updated {new Date(item.updatedAt).toLocaleDateString()}</Text>
@@ -38,7 +58,7 @@ export default function HomeScreen() {
           <Text style={[styles.cardAction, styles.cardDelete]}>Delete</Text>
         </Pressable>
       </View>
-    </View>
+    </Reveal>
   );
 
   return (
@@ -62,19 +82,15 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {!hydrated ? (
-        <Text style={styles.empty}>Loading…</Text>
-      ) : (
-        <FlatList
-          data={scenarios}
-          keyExtractor={(item) => item.id}
-          renderItem={renderScenario}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <Text style={styles.empty}>No scenarios yet. Create your first estimate.</Text>
-          }
-        />
-      )}
+      <FlatList
+        data={scenarios}
+        keyExtractor={(item) => item.id}
+        renderItem={renderScenario}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.empty}>No scenarios yet. Create your first estimate.</Text>
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -100,6 +116,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   list: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
     gap: spacing.sm,

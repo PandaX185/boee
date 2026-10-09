@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { Reveal } from '@/components/motion/Reveal';
+import { colors, layout, radius, spacing } from '@/constants/theme';
 import { PRESETS, type Preset } from '@/core/presets';
 import { createScenario } from '@/core/scenarios';
 import { useScenarioStore } from '@/store/scenarioStore';
@@ -18,20 +19,21 @@ export default function NewScenarioScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.lead}>Start from a preset, then tune the assumptions.</Text>
-      {PRESETS.map((preset) => (
-        <Pressable
-          key={preset.id}
-          accessibilityRole="button"
-          onPress={() => start(preset)}
-          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-        >
-          <Text style={styles.cardTitle}>{preset.name}</Text>
-          <Text style={styles.cardMeta}>
-            {preset.inputs.traffic.dailyActiveUsers.toLocaleString()} DAU ·{' '}
-            {preset.inputs.traffic.actionsPerUserPerDay} actions/user/day ·{' '}
-            {preset.inputs.traffic.readWriteRatio}:1 read:write
-          </Text>
-        </Pressable>
+      {PRESETS.map((preset, index) => (
+        <Reveal key={preset.id} delay={index * 60}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => start(preset)}
+            style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+          >
+            <Text style={styles.cardTitle}>{preset.name}</Text>
+            <Text style={styles.cardMeta}>
+              {preset.inputs.traffic.dailyActiveUsers.toLocaleString()} DAU ·{' '}
+              {preset.inputs.traffic.actionsPerUserPerDay} actions/user/day ·{' '}
+              {preset.inputs.traffic.readWriteRatio}:1 read:write
+            </Text>
+          </Pressable>
+        </Reveal>
       ))}
     </ScrollView>
   );
@@ -43,6 +45,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
     padding: spacing.md,
     gap: spacing.sm,
   },

@@ -72,6 +72,10 @@ export const typography = {
   metricLarge: { fontSize: 30, fontWeight: '800' },
 } as const;
 
+export const layout = {
+  contentMaxWidth: 760,
+} as const;
+
 export const elevation = {
   none: {},
   card: {

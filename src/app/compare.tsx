@@ -1,17 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { BootError, BootLoading } from '@/components/BootState';
+import { Stagger } from '@/components/motion/Stagger';
+import { colors, layout, radius, spacing } from '@/constants/theme';
 import { evaluate } from '@/core/evaluate';
 import { describeMetrics } from '@/core/metrics';
 import type { Scenario } from '@/domain/types';
-import { useScenarioHydrated, useSettingsHydrated } from '@/store/hydration';
+import { confirmDestructive } from '@/services/confirm';
+import { useBoot } from '@/store/hydration';
 import { useScenarioStore } from '@/store/scenarioStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 export default function CompareScreen() {
-  const hydrated = useScenarioHydrated();
-  const settingsHydrated = useSettingsHydrated();
+  const boot = useBoot();
   const scenarios = useScenarioStore((state) => state.scenarios);
   const constants = useSettingsStore((state) => state.constants);
   const [selected, setSelected] = useState<string[]>([]);
@@ -44,28 +46,44 @@ export default function CompareScreen() {
     }));
   }, [picked, constants]);
 
-  if (!hydrated || !settingsHydrated) {
-    return <Text style={styles.message}>Loading…</Text>;
+  if (boot.status === 'loading') {
+    return <BootLoading />;
+  }
+  if (boot.status === 'failed') {
+    return (
+      <BootError
+        onRetry={boot.retry}
+        onReset={() =>
+          confirmDestructive(
+            'Reset saved data',
+            'Delete all saved estimates and constants on this device?',
+            boot.resetSavedData,
+          )
+        }
+      />
+    );
   }
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.lead}>Pick two estimates to compare their derived metrics.</Text>
 
-      {scenarios.map((scenario) => {
-        const order = selected.indexOf(scenario.id);
-        const isSelected = order >= 0;
-        return (
-          <Pressable
-            key={scenario.id}
-            onPress={() => toggle(scenario.id)}
-            style={[styles.row, isSelected && styles.rowSelected]}
-          >
-            <Text style={styles.rowTitle}>{scenario.name}</Text>
-            {isSelected ? <Text style={styles.badge}>{order === 0 ? 'A' : 'B'}</Text> : null}
-          </Pressable>
-        );
-      })}
+      <Stagger>
+        {scenarios.map((scenario) => {
+          const order = selected.indexOf(scenario.id);
+          const isSelected = order >= 0;
+          return (
+            <Pressable
+              key={scenario.id}
+              onPress={() => toggle(scenario.id)}
+              style={[styles.row, isSelected && styles.rowSelected]}
+            >
+              <Text style={styles.rowTitle}>{scenario.name}</Text>
+              {isSelected ? <Text style={styles.badge}>{order === 0 ? 'A' : 'B'}</Text> : null}
+            </Pressable>
+          );
+        })}
+      </Stagger>
 
       {scenarios.length === 0 ? (
         <Text style={styles.message}>No scenarios to compare yet.</Text>
@@ -103,6 +121,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
     padding: spacing.md,
     gap: spacing.sm,
   },

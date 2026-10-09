@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AnimatedNumber } from '@/components/motion/AnimatedNumber';
+import { useBreakpoint } from '@/components/useBreakpoint';
 import { colors, elevation, radius, spacing, typography } from '@/constants/theme';
 import type { MetricDescriptor } from '@/core/metrics';
 
@@ -9,15 +10,16 @@ interface Props {
 }
 
 export function MetricGrid({ metrics }: Props) {
+  const breakpoint = useBreakpoint();
   return (
     <View style={styles.grid}>
       {metrics.map((metric) => (
-        <View key={metric.key} style={styles.card}>
+        <View key={metric.key} style={[styles.card, breakpoint === 'wide' && styles.cardWide]}>
           <AnimatedNumber
             style={styles.value}
             value={metric.raw}
             format={metric.format}
-            interpolate={metric.interpolate}
+            interpolate
           />
           <Text style={styles.label}>{metric.label}</Text>
         </View>
@@ -42,6 +44,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.xs,
     ...elevation.card,
+  },
+  cardWide: {
+    flexBasis: '23%',
   },
   value: {
     ...typography.metric,

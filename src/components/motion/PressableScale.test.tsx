@@ -1,5 +1,5 @@
 import { AccessibilityInfo, Text } from 'react-native';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { PressableScale } from '@/components/motion/PressableScale';
 
@@ -35,6 +35,19 @@ describe('PressableScale', () => {
     expect(onPressIn).toHaveBeenCalledTimes(1);
     expect(onPressOut).toHaveBeenCalledTimes(1);
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips springs under reduced motion', async () => {
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
+    const onPressIn = jest.fn();
+    await render(
+      <PressableScale accessibilityRole="button" onPressIn={onPressIn} onPress={() => undefined}>
+        <Text>calm</Text>
+      </PressableScale>,
+    );
+    await act(async () => undefined);
+    await fireEvent(screen.getByRole('button', { name: 'calm' }), 'pressIn');
+    expect(onPressIn).toHaveBeenCalledTimes(1);
   });
 
   it('skips the spring when disabled', async () => {
