@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ChoiceChips } from '@/components/ChoiceChips';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 
 const UNITS = [
   { label: 'B', factor: 1 },
@@ -37,6 +37,7 @@ export function SizeField({ label, value, onChange, hint }: Props) {
   const initialUnit = pickUnit(value);
   const [unit, setUnit] = useState(initialUnit.label);
   const [text, setText] = useState(() => formatAmount(value, initialUnit.factor));
+  const [focused, setFocused] = useState(false);
 
   const emit = (nextText: string, nextUnit: string) => {
     setText(nextText);
@@ -56,9 +57,11 @@ export function SizeField({ label, value, onChange, hint }: Props) {
       </View>
       <View style={styles.row}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, focused && styles.inputFocused]}
           value={text}
           onChangeText={(next) => emit(next, unit)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           keyboardType="decimal-pad"
           inputMode="decimal"
           selectTextOnFocus
@@ -79,12 +82,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
+    ...typography.body,
     color: colors.text,
-    fontSize: 14,
   },
   hint: {
-    color: colors.textMuted,
-    fontSize: 11,
+    ...typography.caption,
+    color: colors.textFaint,
   },
   row: {
     flexDirection: 'row',
@@ -92,15 +95,20 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   input: {
+    ...typography.body,
     color: colors.text,
-    fontSize: 15,
+    fontWeight: '600',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
     textAlign: 'right',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: radius.sm,
     minWidth: 90,
+    fontVariant: ['tabular-nums'],
+  },
+  inputFocused: {
+    borderColor: colors.primary,
   },
 });

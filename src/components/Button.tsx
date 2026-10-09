@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { PressableScale } from '@/components/motion/PressableScale';
+import { colors, elevation, radius, spacing, typography } from '@/constants/theme';
 
 type Variant = 'primary' | 'secondary';
 
@@ -9,23 +10,25 @@ interface Props {
   onPress: () => void;
   variant?: Variant;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled = false }: Props) {
+export function Button({ label, onPress, variant = 'primary', disabled = false, style }: Props) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.base,
         variant === 'primary' ? styles.primary : styles.secondary,
-        pressed && styles.pressed,
         disabled && styles.disabled,
+        style,
       ]}
     >
       <Text style={variant === 'primary' ? styles.primaryText : styles.secondaryText}>{label}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -39,26 +42,23 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: colors.primary,
+    ...elevation.card,
   },
   secondary: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: colors.card,
+    borderColor: colors.borderStrong,
     borderWidth: 1,
   },
-  pressed: {
-    opacity: 0.7,
-  },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   primaryText: {
+    ...typography.bodyStrong,
     color: colors.primaryText,
-    fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   secondaryText: {
+    ...typography.bodyStrong,
     color: colors.text,
-    fontSize: 15,
-    fontWeight: '500',
   },
 });

@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { AnimatedNumber } from '@/components/motion/AnimatedNumber';
+import { colors, elevation, radius, spacing, typography } from '@/constants/theme';
 import type { MetricDescriptor } from '@/core/metrics';
 
 interface Props {
@@ -12,7 +13,12 @@ export function MetricGrid({ metrics }: Props) {
     <View style={styles.grid}>
       {metrics.map((metric) => (
         <View key={metric.key} style={styles.card}>
-          <Text style={styles.value}>{metric.value}</Text>
+          <AnimatedNumber
+            style={styles.value}
+            value={metric.raw}
+            format={metric.format}
+            interpolate={metric.interpolate}
+          />
           <Text style={styles.label}>{metric.label}</Text>
         </View>
       ))}
@@ -29,18 +35,21 @@ const styles = StyleSheet.create({
   card: {
     flexGrow: 1,
     flexBasis: '47%',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderWidth: 1,
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.xs,
+    ...elevation.card,
   },
   value: {
+    ...typography.metric,
     color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
   },
   label: {
+    ...typography.caption,
     color: colors.textMuted,
-    fontSize: 12,
   },
 });

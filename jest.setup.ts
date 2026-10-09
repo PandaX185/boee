@@ -2,6 +2,10 @@ import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/asy
 import type ReactType from 'react';
 import type * as RNType from 'react-native';
 
+jest.mock('@/components/motion/reducedMotion', () => ({
+  usePrefersReducedMotion: () => true,
+}));
+
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 
 jest.mock('expo-clipboard', () => ({

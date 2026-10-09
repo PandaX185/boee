@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing, typography } from '@/constants/theme';
 
 interface Props {
   title: string;
@@ -19,19 +19,17 @@ export function Section({ title, children }: Props) {
 
 const styles = StyleSheet.create({
   section: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: spacing.md,
-    gap: spacing.sm,
+    gap: spacing.md,
+    ...elevation.card,
   },
   title: {
-    color: colors.text,
-    fontSize: 13,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    ...typography.label,
+    color: colors.textFaint,
   },
   body: {
     gap: spacing.sm,

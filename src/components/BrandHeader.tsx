@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 
 const mark = require('../../assets/images/icon.png');
 
@@ -23,21 +23,20 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   mark: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: radius.md,
   },
   text: {
     gap: 2,
   },
   name: {
+    ...typography.title,
     color: colors.text,
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   tagline: {
+    ...typography.caption,
     color: colors.textMuted,
-    fontSize: 12,
   },
 });

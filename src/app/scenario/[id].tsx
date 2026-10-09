@@ -10,10 +10,12 @@ import { NumberField } from '@/components/NumberField';
 import { Section } from '@/components/Section';
 import { SizeField } from '@/components/SizeField';
 import { SliderField } from '@/components/SliderField';
+import { SystemScene } from '@/components/scene/SystemScene';
 import { colors, spacing } from '@/constants/theme';
 import { evaluate } from '@/core/evaluate';
 import { toMarkdown } from '@/core/export';
 import { describeMetrics } from '@/core/metrics';
+import { buildScene } from '@/core/scene';
 import { cloneInputs } from '@/core/scenarios';
 import type { Constants, Inputs, Scenario } from '@/domain/types';
 import { copyMarkdown, shareMarkdown, slugifyFileBase } from '@/services/shareScenario';
@@ -65,6 +67,10 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
   }, [draft, scenario.id, updateScenario]);
 
   const evaluation = useMemo(() => evaluate(draft.inputs, constants), [draft.inputs, constants]);
+  const scene = useMemo(
+    () => buildScene(draft.inputs, evaluation.derived, evaluation.implications, constants),
+    [draft.inputs, evaluation, constants],
+  );
 
   const patchTraffic = (patch: Partial<Inputs['traffic']>) =>
     setDraft((current) => ({
@@ -194,6 +200,10 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
           format={(value) => `${(value * 100).toFixed(1)}%`}
           onChange={(value) => patchNonFunctional({ monthlyGrowthRate: value })}
         />
+      </Section>
+
+      <Section title="System">
+        <SystemScene model={scene} implications={evaluation.implications} />
       </Section>
 
       <Section title="Derived estimates">

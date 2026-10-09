@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { PressableScale } from '@/components/motion/PressableScale';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 
 interface Option<T> {
   label: string;
@@ -19,16 +20,17 @@ export function ChoiceChips<T>({ options, value, onChange }: Props<T>) {
       {options.map((option) => {
         const selected = option.value === value;
         return (
-          <Pressable
+          <PressableScale
             key={option.label}
             accessibilityRole="button"
+            accessibilityState={{ selected }}
             onPress={() => onChange(option.value)}
             style={[styles.chip, selected && styles.chipSelected]}
           >
             <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
               {option.label}
             </Text>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </View>
@@ -42,23 +44,23 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   chip: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.lg,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.sm + spacing.xs,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.card,
   },
   chipSelected: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
   chipText: {
+    ...typography.caption,
     color: colors.text,
-    fontSize: 13,
   },
   chipTextSelected: {
     color: colors.primaryText,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

@@ -5,64 +5,75 @@ export interface MetricDescriptor {
   key: keyof DerivedMetrics;
   label: string;
   value: string;
+  raw: number;
+  format: (value: number) => string;
+  interpolate?: boolean;
+}
+
+function descriptor(
+  key: keyof DerivedMetrics,
+  label: string,
+  raw: number,
+  format: (value: number) => string,
+  interpolate = false,
+): MetricDescriptor {
+  return { key, label, raw, format, interpolate, value: format(raw) };
 }
 
 export function describeMetrics(derived: DerivedMetrics): MetricDescriptor[] {
   return [
-    { key: 'avgReadQps', label: 'Avg read QPS', value: formatQps(derived.avgReadQps) },
-    { key: 'peakReadQps', label: 'Peak read QPS', value: formatQps(derived.peakReadQps) },
-    { key: 'avgWriteQps', label: 'Avg write QPS', value: formatQps(derived.avgWriteQps) },
-    { key: 'peakWriteQps', label: 'Peak write QPS', value: formatQps(derived.peakWriteQps) },
-    {
-      key: 'storagePerDayBytes',
-      label: 'Storage / day',
-      value: formatBytes(derived.storagePerDayBytes),
-    },
-    {
-      key: 'storagePerYearBytes',
-      label: 'Storage / year',
-      value: formatBytes(derived.storagePerYearBytes),
-    },
-    {
-      key: 'totalStorageBytes',
-      label: 'Total retained',
-      value: formatBytes(derived.totalStorageBytes),
-    },
-    {
-      key: 'ingressBytesPerSecond',
-      label: 'Ingress',
-      value: `${formatBytes(derived.ingressBytesPerSecond)}/s`,
-    },
-    {
-      key: 'egressBytesPerSecond',
-      label: 'Egress',
-      value: `${formatBytes(derived.egressBytesPerSecond)}/s`,
-    },
-    {
-      key: 'cacheHotSetBytes',
-      label: 'Cache hot set',
-      value: formatBytes(derived.cacheHotSetBytes),
-    },
-    { key: 'serverCount', label: 'Server count', value: `${derived.serverCount}` },
-    {
-      key: 'allowedDowntimeSecondsPerYear',
-      label: 'Allowed downtime / yr',
-      value: formatDuration(derived.allowedDowntimeSecondsPerYear),
-    },
-    {
-      key: 'projectedDailyActiveUsers6mo',
-      label: 'Projected DAU (6mo)',
-      value: formatCount(derived.projectedDailyActiveUsers6mo),
-    },
-    {
-      key: 'projectedDailyActiveUsers12mo',
-      label: 'Projected DAU (12mo)',
-      value: formatCount(derived.projectedDailyActiveUsers12mo),
-    },
-    {
-      key: 'projectedStorage12moBytes',
-      label: 'Projected storage (12mo)',
-      value: formatBytes(derived.projectedStorage12moBytes),
-    },
+    descriptor('avgReadQps', 'Avg read QPS', derived.avgReadQps, formatQps),
+    descriptor('peakReadQps', 'Peak read QPS', derived.peakReadQps, formatQps),
+    descriptor('avgWriteQps', 'Avg write QPS', derived.avgWriteQps, formatQps),
+    descriptor('peakWriteQps', 'Peak write QPS', derived.peakWriteQps, formatQps),
+    descriptor('storagePerDayBytes', 'Storage / day', derived.storagePerDayBytes, formatBytes),
+    descriptor('storagePerYearBytes', 'Storage / year', derived.storagePerYearBytes, formatBytes),
+    descriptor('totalStorageBytes', 'Total retained', derived.totalStorageBytes, formatBytes),
+    descriptor(
+      'ingressBytesPerSecond',
+      'Ingress',
+      derived.ingressBytesPerSecond,
+      (value) => `${formatBytes(value)}/s`,
+    ),
+    descriptor(
+      'egressBytesPerSecond',
+      'Egress',
+      derived.egressBytesPerSecond,
+      (value) => `${formatBytes(value)}/s`,
+    ),
+    descriptor('cacheHotSetBytes', 'Cache hot set', derived.cacheHotSetBytes, formatBytes),
+    descriptor(
+      'serverCount',
+      'Server count',
+      derived.serverCount,
+      (value) => `${Math.round(value)}`,
+      true,
+    ),
+    descriptor(
+      'allowedDowntimeSecondsPerYear',
+      'Allowed downtime / yr',
+      derived.allowedDowntimeSecondsPerYear,
+      formatDuration,
+    ),
+    descriptor(
+      'projectedDailyActiveUsers6mo',
+      'Projected DAU (6mo)',
+      derived.projectedDailyActiveUsers6mo,
+      formatCount,
+      true,
+    ),
+    descriptor(
+      'projectedDailyActiveUsers12mo',
+      'Projected DAU (12mo)',
+      derived.projectedDailyActiveUsers12mo,
+      formatCount,
+      true,
+    ),
+    descriptor(
+      'projectedStorage12moBytes',
+      'Projected storage (12mo)',
+      derived.projectedStorage12moBytes,
+      formatBytes,
+    ),
   ];
 }

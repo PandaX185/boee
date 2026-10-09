@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { Stagger } from '@/components/motion/Stagger';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 import type { Implication, ImplicationSeverity } from '@/domain/types';
 
 const severityRank: Record<ImplicationSeverity, number> = {
@@ -24,7 +25,7 @@ export function ImplicationList({ implications }: Props) {
   );
 
   return (
-    <View style={styles.list}>
+    <Stagger style={styles.list}>
       {ordered.map((item) => (
         <View
           key={item.id}
@@ -37,7 +38,7 @@ export function ImplicationList({ implications }: Props) {
           <Text style={styles.trigger}>trigger: {item.trigger}</Text>
         </View>
       ))}
-    </View>
+    </Stagger>
   );
 }
 
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
   item: {
     borderLeftWidth: 3,
     borderRadius: radius.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     padding: spacing.sm,
     gap: spacing.xs,
   },
@@ -59,23 +60,20 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.info,
   },
   meta: {
+    ...typography.label,
     color: colors.textMuted,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.4,
   },
   message: {
+    ...typography.body,
     color: colors.text,
-    fontSize: 14,
-    lineHeight: 20,
   },
   trigger: {
-    color: colors.textMuted,
-    fontSize: 11,
+    ...typography.caption,
+    color: colors.textFaint,
     fontStyle: 'italic',
   },
   empty: {
+    ...typography.body,
     color: colors.textMuted,
-    fontSize: 14,
   },
 });

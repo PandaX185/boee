@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing } from '@/constants/theme';
+import { colors, spacing, typography } from '@/constants/theme';
 
 interface Props {
   label: string;
@@ -44,12 +44,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
+    ...typography.body,
     color: colors.text,
-    fontSize: 14,
   },
   value: {
+    ...typography.bodyStrong,
     color: colors.text,
-    fontSize: 14,
-    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
   },
 });
