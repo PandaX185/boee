@@ -22,6 +22,10 @@ describe('toMarkdown', () => {
     expect(markdown).toContain('## Assumptions');
     expect(markdown).toContain('## Derived estimates');
     expect(markdown).toContain('## Implications');
-    expect(markdown).toContain('## Open questions');
+  });
+
+  it('omits the open questions section when there is nothing to ask', () => {
+    expect(markdown).not.toContain('## Open questions');
+    expect(markdown).not.toMatch(/^-\s*$/m);
   });
 });

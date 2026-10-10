@@ -45,8 +45,5 @@ export function toMarkdown(scenario: Scenario, evaluation: Evaluation): string {
     '## Implications',
     ...implicationLines,
     '',
-    '## Open questions',
-    '- ',
-    '',
   ].join('\n');
 }

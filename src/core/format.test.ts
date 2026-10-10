@@ -16,8 +16,13 @@ describe('formatBytes', () => {
     expect(formatBytes(1536)).toBe('1.5 KB');
   });
 
+  it('uses decimal units', () => {
+    expect(formatBytes(307_200_000)).toBe('307 MB');
+    expect(formatBytes(112_128_000_000)).toBe('112 GB');
+  });
+
   it('drops decimals for values of 100 or more', () => {
-    expect(formatBytes(500 * 1024 ** 3)).toBe('500 GB');
+    expect(formatBytes(500 * 1000 ** 3)).toBe('500 GB');
   });
 });
 
@@ -59,6 +64,18 @@ describe('formatPercent', () => {
 
   it('drops decimals at 10% and above', () => {
     expect(formatPercent(0.5)).toBe('50%');
+  });
+
+  it('keeps enough precision to distinguish high availability targets', () => {
+    expect(formatPercent(0.99)).toBe('99%');
+    expect(formatPercent(0.999)).toBe('99.9%');
+    expect(formatPercent(0.9999)).toBe('99.99%');
+    expect(formatPercent(0.99999)).toBe('99.999%');
+    expect(formatPercent(1)).toBe('100%');
+  });
+
+  it('formats invalid fractions as 0%', () => {
+    expect(formatPercent(NaN)).toBe('0%');
   });
 });
 

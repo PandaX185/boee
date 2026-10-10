@@ -1,11 +1,15 @@
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
+const BYTES_PER_UNIT = 1000;
 
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return '0 B';
   }
-  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), BYTE_UNITS.length - 1);
-  const value = bytes / 1024 ** exponent;
+  const exponent = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(BYTES_PER_UNIT)),
+    BYTE_UNITS.length - 1,
+  );
+  const value = bytes / BYTES_PER_UNIT ** exponent;
   const decimals = exponent === 0 || value >= 100 ? 0 : 1;
   return `${value.toFixed(decimals)} ${BYTE_UNITS[exponent]}`;
 }
@@ -38,8 +42,15 @@ export function formatQps(value: number): string {
 }
 
 export function formatPercent(fraction: number): string {
+  if (!Number.isFinite(fraction)) {
+    return '0%';
+  }
   const percent = fraction * 100;
-  return `${percent.toFixed(percent >= 10 ? 0 : 1)}%`;
+  let decimals = percent >= 10 || percent <= -10 ? 0 : 1;
+  while (decimals < 5 && percent < 100 && Number(percent.toFixed(decimals)) >= 100) {
+    decimals += 1;
+  }
+  return `${percent.toFixed(decimals)}%`;
 }
 
 export function formatDuration(seconds: number): string {

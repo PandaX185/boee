@@ -1,6 +1,6 @@
 import type { Constants } from '@/domain/types';
 
-export const GB = 1024 ** 3;
+export const GB = 1000 ** 3;
 
 export const DEFAULT_CONSTANTS: Constants = {
   infrastructure: {

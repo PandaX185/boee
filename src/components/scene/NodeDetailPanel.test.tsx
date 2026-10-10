@@ -36,6 +36,6 @@ describe('NodeDetailPanel', () => {
   it('stacks metrics on compact screens', async () => {
     mockBreakpoint.mockReturnValue('compact');
     await render(<NodeDetailPanel node={node} implications={[]} onClose={jest.fn()} />);
-    expect(screen.getByText('Server count')).toBeOnTheScreen();
+    expect(screen.getByText('Server capacity')).toBeOnTheScreen();
   });
 });

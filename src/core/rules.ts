@@ -34,7 +34,7 @@ const rules: Rule[] = [
     evaluate: ({ derived, constants }) =>
       derived.totalStorageBytes > constants.infrastructure.cacheRamBytes
         ? {
-            message: `Retained data (${formatBytes(derived.totalStorageBytes)}) exceeds the assumed ${formatBytes(constants.infrastructure.cacheRamBytes)} memory budget — primary data belongs on disk or object storage, not in RAM.`,
+            message: `Retained data (${formatBytes(derived.totalStorageBytes)}) exceeds the assumed ${formatBytes(constants.infrastructure.cacheRamBytes)} memory budget — keep primary data on disk or object storage and reserve RAM for the hot working set, not the full dataset.`,
             trigger: 'total storage > RAM budget',
           }
         : null,
@@ -94,7 +94,7 @@ const rules: Rule[] = [
     evaluate: ({ derived, constants }) =>
       derived.cacheHotSetBytes > constants.infrastructure.cacheRamBytes
         ? {
-            message: `Working hot set (${formatBytes(derived.cacheHotSetBytes)}) exceeds the ${formatBytes(constants.infrastructure.cacheRamBytes)} cache budget — shard the cache across nodes.`,
+            message: `Working hot set (${formatBytes(derived.cacheHotSetBytes)}), estimated as ${formatPercent(constants.hotWorkingSetFraction)} of daily read volume, exceeds the ${formatBytes(constants.infrastructure.cacheRamBytes)} cache budget — shard the cache across nodes.`,
             trigger: 'hot working set > cache RAM',
           }
         : null,
@@ -118,7 +118,7 @@ const rules: Rule[] = [
     evaluate: ({ inputs, derived }) =>
       inputs.nonFunctional.availabilityTarget >= 0.9999
         ? {
-            message: `A ${formatPercent(inputs.nonFunctional.availabilityTarget)} target allows only ${formatDuration(derived.allowedDowntimeSecondsPerYear)} downtime per year — requires multi-AZ redundancy and automated failover.`,
+            message: `A ${formatPercent(inputs.nonFunctional.availabilityTarget)} target allows only ${formatDuration(derived.allowedDowntimeSecondsPerYear)} downtime per year — throughput capacity alone does not cover this. Plan redundant servers across failure domains with automated failover, and review dependencies and operations, since zones alone do not guarantee the target.`,
             trigger: 'availability target >= 99.99%',
           }
         : null,

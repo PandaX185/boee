@@ -16,4 +16,43 @@ describe('inputsSchema', () => {
     };
     expect(inputsSchema.safeParse(invalid).success).toBe(false);
   });
+
+  it('rejects negative ratios, availability outside (0, 1], and negative growth', () => {
+    const base = PRESETS[0].inputs;
+    expect(
+      inputsSchema.safeParse({
+        ...base,
+        traffic: { ...base.traffic, readWriteRatio: -1 },
+      }).success,
+    ).toBe(false);
+    expect(
+      inputsSchema.safeParse({
+        ...base,
+        nonFunctional: { ...base.nonFunctional, availabilityTarget: 1.5 },
+      }).success,
+    ).toBe(false);
+    expect(
+      inputsSchema.safeParse({
+        ...base,
+        nonFunctional: { ...base.nonFunctional, availabilityTarget: 0 },
+      }).success,
+    ).toBe(false);
+    expect(
+      inputsSchema.safeParse({
+        ...base,
+        nonFunctional: { ...base.nonFunctional, monthlyGrowthRate: -0.01 },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('accepts boundary values', () => {
+    const base = PRESETS[0].inputs;
+    expect(
+      inputsSchema.safeParse({
+        ...base,
+        traffic: { ...base.traffic, readWriteRatio: 0 },
+        nonFunctional: { ...base.nonFunctional, availabilityTarget: 1, monthlyGrowthRate: 0 },
+      }).success,
+    ).toBe(true);
+  });
 });

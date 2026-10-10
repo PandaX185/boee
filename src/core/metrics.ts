@@ -72,7 +72,7 @@ export function describeMetrics(derived: DerivedMetrics): MetricDescriptor[] {
     ),
     descriptor(
       'serverCount',
-      'Server count',
+      'Server capacity',
       derived.serverCount,
       (value) => `${Math.round(value)}`,
       'throughput',

@@ -24,7 +24,7 @@ describe('SystemScene', () => {
     await render(<SystemScene model={model} implications={implications} animate={false} />);
     await fireEvent.press(screen.getByRole('button', { name: /App servers/ }));
     expect(screen.getByText('Stateless compute')).toBeOnTheScreen();
-    expect(screen.getByText('Server count')).toBeOnTheScreen();
+    expect(screen.getByText('Server capacity')).toBeOnTheScreen();
   });
 
   it('closes the detail panel again', async () => {
