@@ -49,8 +49,16 @@ export function estimate(inputs: Inputs, constants: Constants): DerivedMetrics {
   const projectedDailyActiveUsers12mo = traffic.dailyActiveUsers * growthFactor12;
 
   const monthlyStorageBytes = storagePerDayBytes * DAYS_PER_MONTH;
-  const cumulativeGrowthFactor12 = growth === 0 ? 12 : (growthFactor12 - 1) / growth;
-  const projectedStorage12moBytes = monthlyStorageBytes * cumulativeGrowthFactor12;
+  let projectedStorage12moBytes = 0;
+  for (let month = 1; month <= 12; month += 1) {
+    const monthStartAgeDays = (12 - month) * DAYS_PER_MONTH;
+    const retainedFraction = Math.min(
+      Math.max((dataShape.retentionDays - monthStartAgeDays) / DAYS_PER_MONTH, 0),
+      1,
+    );
+    projectedStorage12moBytes +=
+      monthlyStorageBytes * (1 + growth) ** (month - 1) * retainedFraction;
+  }
 
   return {
     avgWriteQps,
