@@ -1,5 +1,6 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -92,7 +93,7 @@ export function UpdateButton() {
         <ActivityIndicator size="small" color={colors.text} testID="update-checking" />
       ) : (
         <View>
-          <Text style={styles.icon}>↓</Text>
+          <MaterialIcons name="system-update" size={22} color={colors.text} />
           {hasUpdate ? (
             <Animated.View style={[styles.badge, badgeStyle]} testID="update-badge" />
           ) : null}
@@ -158,11 +159,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.sm,
-  },
-  icon: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '700',
   },
   badge: {
     position: 'absolute',

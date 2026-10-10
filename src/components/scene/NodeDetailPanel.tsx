@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { PRESSURE_COLOR } from '@/components/scene/sceneLayout';
+import { CATEGORY_LABELS } from '@/core/categories';
 import { useBreakpoint } from '@/components/useBreakpoint';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import type { SceneNode } from '@/core/scene';
@@ -55,7 +56,7 @@ export function NodeDetailPanel({ node, implications, onClose }: Props) {
         implications.map((implication) => (
           <View key={implication.id} style={styles.implication}>
             <Text style={styles.implicationMeta}>
-              {implication.severity.toUpperCase()} · {implication.category}
+              {implication.severity.toUpperCase()} · {CATEGORY_LABELS[implication.category]}
             </Text>
             <Text style={styles.implicationMessage}>{implication.message}</Text>
             <Text style={styles.implicationTrigger}>trigger: {implication.trigger}</Text>

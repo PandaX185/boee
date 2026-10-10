@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: radius.sm,
+    flex: 1,
     minWidth: 90,
     fontVariant: ['tabular-nums'],
   },

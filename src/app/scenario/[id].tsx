@@ -126,7 +126,11 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <Section title="Scenario" delay={0}>
         <TextInput
           style={styles.nameInput}

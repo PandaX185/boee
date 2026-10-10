@@ -57,12 +57,11 @@ export interface DerivedMetrics {
 
 export type ImplicationSeverity = 'info' | 'warning';
 
-export type ImplicationCategory =
-  'storage' | 'scaling' | 'caching' | 'network' | 'redundancy' | 'growth';
+export type Category = 'throughput' | 'storage' | 'network' | 'caching' | 'reliability' | 'growth';
 
 export interface Implication {
   id: string;
-  category: ImplicationCategory;
+  category: Category;
   severity: ImplicationSeverity;
   message: string;
   trigger: string;

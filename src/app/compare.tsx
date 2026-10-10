@@ -3,7 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BootError, BootLoading } from '@/components/BootState';
 import { Stagger } from '@/components/motion/Stagger';
-import { colors, layout, radius, spacing } from '@/constants/theme';
+import { colors, layout, radius, spacing, typography } from '@/constants/theme';
+import { CATEGORY_LABELS, groupByCategory } from '@/core/categories';
 import { evaluate } from '@/core/evaluate';
 import { describeMetrics } from '@/core/metrics';
 import type { Scenario } from '@/domain/types';
@@ -33,17 +34,19 @@ export default function CompareScreen() {
     .map((id) => scenarios.find((scenario) => scenario.id === id))
     .filter((scenario): scenario is Scenario => Boolean(scenario));
 
-  const rows = useMemo(() => {
+  const groups = useMemo(() => {
     if (picked.length !== 2) {
       return null;
     }
     const left = describeMetrics(evaluate(picked[0].inputs, constants).derived);
     const right = describeMetrics(evaluate(picked[1].inputs, constants).derived);
-    return left.map((metric, index) => ({
+    const rows = left.map((metric, index) => ({
+      category: metric.category,
       label: metric.label,
       left: metric.value,
       right: right[index]?.value ?? '—',
     }));
+    return groupByCategory(rows);
   }, [picked, constants]);
 
   if (boot.status === 'loading') {
@@ -65,7 +68,11 @@ export default function CompareScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.lead}>Pick two estimates to compare their derived metrics.</Text>
 
       <Stagger>
@@ -89,7 +96,7 @@ export default function CompareScreen() {
         <Text style={styles.message}>No scenarios to compare yet.</Text>
       ) : null}
 
-      {rows ? (
+      {groups ? (
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={[styles.cell, styles.cellLabel, styles.headerText]}>Metric</Text>
@@ -100,11 +107,20 @@ export default function CompareScreen() {
               {picked[1].name}
             </Text>
           </View>
-          {rows.map((row) => (
-            <View key={row.label} style={styles.tableRow}>
-              <Text style={[styles.cell, styles.cellLabel]}>{row.label}</Text>
-              <Text style={styles.cell}>{row.left}</Text>
-              <Text style={styles.cell}>{row.right}</Text>
+          {groups.map((group) => (
+            <View key={group.category}>
+              <View style={[styles.tableRow, styles.groupHeader]}>
+                <Text style={[styles.cell, styles.groupHeaderText]}>
+                  {CATEGORY_LABELS[group.category]}
+                </Text>
+              </View>
+              {group.items.map((row) => (
+                <View key={row.label} style={styles.tableRow}>
+                  <Text style={[styles.cell, styles.cellLabel]}>{row.label}</Text>
+                  <Text style={styles.cell}>{row.left}</Text>
+                  <Text style={styles.cell}>{row.right}</Text>
+                </View>
+              ))}
             </View>
           ))}
         </View>
@@ -169,6 +185,13 @@ const styles = StyleSheet.create({
   tableHeader: {
     borderTopWidth: 0,
     backgroundColor: colors.surface,
+  },
+  groupHeader: {
+    backgroundColor: colors.backgroundElevated,
+  },
+  groupHeaderText: {
+    ...typography.label,
+    color: colors.textFaint,
   },
   cell: {
     flex: 1,

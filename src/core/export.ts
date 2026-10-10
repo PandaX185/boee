@@ -1,3 +1,4 @@
+import { CATEGORY_LABELS } from '@/core/categories';
 import { describeMetrics } from '@/core/metrics';
 import type { Evaluation, Scenario } from '@/domain/types';
 
@@ -25,7 +26,9 @@ export function toMarkdown(scenario: Scenario, evaluation: Evaluation): string {
 
   const implicationLines =
     implications.length > 0
-      ? implications.map((item) => `- **${item.severity}** [${item.category}] ${item.message}`)
+      ? implications.map(
+          (item) => `- **${item.severity}** [${CATEGORY_LABELS[item.category]}] ${item.message}`,
+        )
       : ['- None triggered with the current assumptions.'];
 
   return [

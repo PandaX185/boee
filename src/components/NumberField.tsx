@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { useBreakpoint } from '@/components/useBreakpoint';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 export function NumberField({ label, value, onChange, suffix, hint }: Props) {
   const [text, setText] = useState(() => String(value));
   const [focused, setFocused] = useState(false);
+  const breakpoint = useBreakpoint();
 
   const handleChange = (next: string) => {
     setText(next);
@@ -29,7 +31,13 @@ export function NumberField({ label, value, onChange, suffix, hint }: Props) {
         <Text style={styles.label}>{label}</Text>
         {hint ? <Text style={styles.hint}>{hint}</Text> : null}
       </View>
-      <View style={[styles.inputWrap, focused && styles.inputWrapFocused]}>
+      <View
+        style={[
+          styles.inputWrap,
+          breakpoint === 'compact' && styles.inputWrapCompact,
+          focused && styles.inputWrapFocused,
+        ]}
+      >
         <TextInput
           style={styles.input}
           value={text}
@@ -75,6 +83,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
     minWidth: 124,
+  },
+  inputWrapCompact: {
+    minWidth: 104,
   },
   inputWrapFocused: {
     borderColor: colors.primary,

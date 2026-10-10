@@ -1,9 +1,9 @@
 import { formatBytes, formatCount, formatDuration, formatPercent, formatQps } from '@/core/format';
 import type {
+  Category,
   Constants,
   DerivedMetrics,
   Implication,
-  ImplicationCategory,
   ImplicationSeverity,
   Inputs,
 } from '@/domain/types';
@@ -21,7 +21,7 @@ interface RuleFinding {
 
 interface Rule {
   id: string;
-  category: ImplicationCategory;
+  category: Category;
   severity: ImplicationSeverity;
   evaluate: (ctx: RuleContext) => RuleFinding | null;
 }
@@ -41,7 +41,7 @@ const rules: Rule[] = [
   },
   {
     id: 'read-scale',
-    category: 'scaling',
+    category: 'throughput',
     severity: 'warning',
     evaluate: ({ derived, constants }) =>
       derived.peakReadQps > constants.infrastructure.singleNodeReadQps
@@ -53,7 +53,7 @@ const rules: Rule[] = [
   },
   {
     id: 'write-scale',
-    category: 'scaling',
+    category: 'throughput',
     severity: 'warning',
     evaluate: ({ derived, constants }) =>
       derived.peakWriteQps > constants.infrastructure.singleNodeWriteQps
@@ -113,7 +113,7 @@ const rules: Rule[] = [
   },
   {
     id: 'availability-redundancy',
-    category: 'redundancy',
+    category: 'reliability',
     severity: 'warning',
     evaluate: ({ inputs, derived }) =>
       inputs.nonFunctional.availabilityTarget >= 0.9999

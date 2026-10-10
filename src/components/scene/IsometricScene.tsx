@@ -191,13 +191,13 @@ function SceneNodeCard({ node, selected, onSelect }: NodeProps) {
       ]}
     >
       <View style={[styles.pressureDot, { backgroundColor: color }]} />
-      <Text style={styles.nodeHeadline} numberOfLines={1}>
+      <Text style={styles.nodeHeadline} numberOfLines={2}>
         {node.headline}
       </Text>
-      <Text style={styles.nodeHeadlineLabel} numberOfLines={1}>
+      <Text style={styles.nodeHeadlineLabel} numberOfLines={2}>
         {node.headlineLabel}
       </Text>
-      <Text style={styles.nodeLabel} numberOfLines={1}>
+      <Text style={styles.nodeLabel} numberOfLines={2}>
         {node.label}
       </Text>
     </PressableScale>

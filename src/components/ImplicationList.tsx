@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { CATEGORY_LABELS, groupByCategory } from '@/core/categories';
 import { Stagger } from '@/components/motion/Stagger';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import type { Implication, ImplicationSeverity } from '@/domain/types';
@@ -20,29 +21,43 @@ export function ImplicationList({ implications }: Props) {
     );
   }
 
-  const ordered = [...implications].sort(
-    (a, b) => severityRank[b.severity] - severityRank[a.severity],
-  );
+  const groups = groupByCategory(implications).map((group) => ({
+    ...group,
+    items: [...group.items].sort((a, b) => severityRank[b.severity] - severityRank[a.severity]),
+  }));
 
   return (
-    <Stagger style={styles.list}>
-      {ordered.map((item) => (
-        <View
-          key={item.id}
-          style={[styles.item, item.severity === 'warning' ? styles.warning : styles.info]}
-        >
-          <Text style={styles.meta}>
-            {item.severity.toUpperCase()} · {item.category}
-          </Text>
-          <Text style={styles.message}>{item.message}</Text>
-          <Text style={styles.trigger}>trigger: {item.trigger}</Text>
+    <View style={styles.groups}>
+      {groups.map((group) => (
+        <View key={group.category}>
+          <Text style={styles.groupTitle}>{CATEGORY_LABELS[group.category]}</Text>
+          <Stagger style={styles.list}>
+            {group.items.map((item) => (
+              <View
+                key={item.id}
+                style={[styles.item, item.severity === 'warning' ? styles.warning : styles.info]}
+              >
+                <Text style={styles.meta}>{item.severity.toUpperCase()}</Text>
+                <Text style={styles.message}>{item.message}</Text>
+                <Text style={styles.trigger}>trigger: {item.trigger}</Text>
+              </View>
+            ))}
+          </Stagger>
         </View>
       ))}
-    </Stagger>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  groups: {
+    gap: spacing.md,
+  },
+  groupTitle: {
+    ...typography.label,
+    color: colors.textFaint,
+    marginBottom: spacing.xs,
+  },
   list: {
     gap: spacing.sm,
   },
