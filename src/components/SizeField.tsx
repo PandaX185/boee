@@ -79,15 +79,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
   },
   label: {
     ...typography.body,
     color: colors.text,
+    flexShrink: 1,
   },
   hint: {
     ...typography.caption,
     color: colors.textFaint,
+    flexShrink: 1,
+    textAlign: 'right',
   },
   row: {
     flexDirection: 'row',

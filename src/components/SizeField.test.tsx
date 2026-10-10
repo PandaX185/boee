@@ -16,6 +16,21 @@ describe('SizeField', () => {
     expect(onChange).toHaveBeenCalledWith(3 * 1024);
   });
 
+  it('renders long labels and hints side by side', async () => {
+    await render(
+      <SizeField
+        label="Cache RAM budget"
+        hint="Assumed commodity server memory budget used for rough cache sizing."
+        value={64 * 1024 ** 3}
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.getByText('Cache RAM budget')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Assumed commodity server memory budget used for rough cache sizing.'),
+    ).toBeOnTheScreen();
+  });
+
   it('converts when the unit changes', async () => {
     const onChange = jest.fn();
     await render(<SizeField label="Object size" value={2048} onChange={onChange} />);
