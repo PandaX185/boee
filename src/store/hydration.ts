@@ -1,26 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 
 import { type BootStatus, getBootStatus } from '@/core/boot';
 import { SCENARIO_STORAGE_KEY, useScenarioStore } from '@/store/scenarioStore';
 import { SETTINGS_STORAGE_KEY, useSettingsStore } from '@/store/settingsStore';
 
-export const BOOT_TIMEOUT_MS = 5000;
+export const BOOT_TIMEOUT_MS = 10000;
 
 export function useScenarioHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => useScenarioStore.persist.hasHydrated());
-  useEffect(() => {
-    return useScenarioStore.persist.onFinishHydration(() => setHydrated(true));
-  }, []);
-  return hydrated;
+  return useSyncExternalStore(
+    (notify) => useScenarioStore.persist.onFinishHydration(notify),
+    useScenarioStore.persist.hasHydrated,
+  );
 }
 
 export function useSettingsHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() => useSettingsStore.persist.hasHydrated());
-  useEffect(() => {
-    return useSettingsStore.persist.onFinishHydration(() => setHydrated(true));
-  }, []);
-  return hydrated;
+  return useSyncExternalStore(
+    (notify) => useSettingsStore.persist.onFinishHydration(notify),
+    useSettingsStore.persist.hasHydrated,
+  );
 }
 
 export interface Boot {
