@@ -149,6 +149,7 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
         <NumberField
           label="Actions per user / day"
+          hint="Split into reads and writes by the ratio below"
           value={draft.inputs.traffic.actionsPerUserPerDay}
           onChange={(value) => patchTraffic({ actionsPerUserPerDay: value })}
         />
@@ -178,11 +179,13 @@ function ScenarioEditor({ scenario, constants }: { scenario: Scenario; constants
         />
         <NumberField
           label="Objects written / action"
+          hint="Per write operation"
           value={draft.inputs.dataShape.objectsWrittenPerAction}
           onChange={(value) => patchData({ objectsWrittenPerAction: value })}
         />
         <NumberField
           label="Objects read / action"
+          hint="Per read operation"
           value={draft.inputs.dataShape.objectsReadPerAction}
           onChange={(value) => patchData({ objectsReadPerAction: value })}
         />

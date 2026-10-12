@@ -55,6 +55,12 @@ describe('formatQps', () => {
   it('uses K above 1000 QPS', () => {
     expect(formatQps(1500)).toBe('1.5K QPS');
   });
+
+  it('keeps two decimals below 1 QPS', () => {
+    expect(formatQps(0.048)).toBe('0.05 QPS');
+    expect(formatQps(0.87)).toBe('0.87 QPS');
+    expect(formatQps(0)).toBe('0.00 QPS');
+  });
 });
 
 describe('formatPercent', () => {

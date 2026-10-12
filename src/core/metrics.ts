@@ -51,14 +51,14 @@ export function describeMetrics(derived: DerivedMetrics): MetricDescriptor[] {
     ),
     descriptor(
       'ingressBytesPerSecond',
-      'Ingress',
+      'Peak ingress',
       derived.ingressBytesPerSecond,
       (value) => `${formatBytes(value)}/s`,
       'network',
     ),
     descriptor(
       'egressBytesPerSecond',
-      'Egress',
+      'Peak egress',
       derived.egressBytesPerSecond,
       (value) => `${formatBytes(value)}/s`,
       'network',

@@ -38,7 +38,13 @@ export function formatQps(value: number): string {
   if (value >= 1000) {
     return `${(value / 1000).toFixed(1)}K QPS`;
   }
-  return `${value.toFixed(value < 10 ? 1 : 0)} QPS`;
+  if (value >= 10) {
+    return `${value.toFixed(0)} QPS`;
+  }
+  if (value >= 1) {
+    return `${value.toFixed(1)} QPS`;
+  }
+  return `${value.toFixed(2)} QPS`;
 }
 
 export function formatPercent(fraction: number): string {

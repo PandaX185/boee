@@ -80,6 +80,52 @@ describe('repro fixture: 100K DAU, 9:1 reads, 3x peak, 1KB objects', () => {
   });
 });
 
+describe('fitcore fixture: 500 DAU, 5:1 reads, 512B objects, 30-day retention', () => {
+  const fitcore: Inputs = {
+    traffic: {
+      dailyActiveUsers: 500,
+      actionsPerUserPerDay: 10,
+      readWriteRatio: 5,
+      peakMultiplier: 3,
+    },
+    dataShape: {
+      objectSizeBytes: 512,
+      objectsWrittenPerAction: 1,
+      objectsReadPerAction: 5,
+      retentionDays: 30,
+      replicationFactor: 1,
+    },
+    nonFunctional: {
+      availabilityTarget: 0.99,
+      monthlyGrowthRate: 0.05,
+    },
+  };
+  const derived = estimate(fitcore, DEFAULT_CONSTANTS);
+
+  it('splits 5K daily ops 5:1 under the operation-ratio model', () => {
+    expect(derived.avgReadQps).toBeCloseTo(25_000 / 6 / 86_400, 9);
+    expect(derived.avgWriteQps).toBeCloseTo(5_000 / 6 / 86_400, 9);
+    expect(derived.peakReadQps).toBeCloseTo((25_000 / 6 / 86_400) * 3, 9);
+  });
+
+  it('derives storage from write operations only', () => {
+    expect(derived.storagePerDayBytes).toBeCloseTo(2_560_000 / 6, 6);
+    expect(derived.totalStorageBytes).toBeCloseTo((2_560_000 / 6) * 30, 3);
+  });
+
+  it('derives peak bandwidth from objects per operation', () => {
+    expect(derived.ingressBytesPerSecond).toBeCloseTo(((5_000 / 6) * 512 * 3) / 86_400, 6);
+    expect(derived.egressBytesPerSecond).toBeCloseTo(((25_000 / 6) * 5 * 512 * 3) / 86_400, 6);
+    expect(derived.cacheHotSetBytes).toBeCloseTo((25_000 / 6) * 5 * 512 * 0.2, 3);
+  });
+
+  it('projects roughly one retained month at month-12 scale', () => {
+    expect(derived.projectedDailyActiveUsers6mo).toBeCloseTo(500 * 1.05 ** 6, 6);
+    expect(derived.projectedDailyActiveUsers12mo).toBeCloseTo(500 * 1.05 ** 12, 6);
+    expect(derived.projectedStorage12moBytes).toBeCloseTo(21_892_343.78, 1);
+  });
+});
+
 describe('ratio edges', () => {
   it('treats a 1:1 ratio as an even split', () => {
     const derived = estimate(

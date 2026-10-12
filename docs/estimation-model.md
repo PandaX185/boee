@@ -13,8 +13,14 @@ Growth is stored as a monthly fraction (0.05) and displayed as a percentage.
 
 ## Throughput
 
-- Daily ops = DAU × actions/user/day, split by the read:write ratio R as
-  reads = ops × R/(1+R), writes = ops × 1/(1+R). A ratio of 0 means all writes.
+BOEE uses an operation-ratio model: "actions" are individual operations, split by the
+read:write ratio R as reads = ops × R/(1+R), writes = ops × 1/(1+R). A ratio of 0
+means all writes. "Objects per action" therefore means objects touched per read or
+write operation — e.g. with 10 actions/user/day at a 5:1 ratio, each user produces
+about 8.3 reads and 1.7 writes, and each of those reads touches the configured number
+of objects. This is not an action-fan-out model where one gesture generates both a
+write and several reads.
+
 - Average QPS = ops/day ÷ 86,400. Peak QPS = average × peak multiplier.
 - **Server capacity** = ceil(peak total QPS ÷ per-server QPS), minimum 1. This is a
   throughput estimate only: it says nothing about redundancy, failover, CPU, memory,
