@@ -1,7 +1,7 @@
 {
   "name": "boee",
   "main": "expo-router/entry",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "dependencies": {
     "@expo/ui": "~57.0.23",
     "@expo/vector-icons": "^15.0.2",
