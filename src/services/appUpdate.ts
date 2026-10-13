@@ -1,10 +1,18 @@
 import Constants from 'expo-constants';
+import { File, Paths, type DownloadTask } from 'expo-file-system';
+import { getContentUriAsync } from 'expo-file-system/legacy';
+import * as IntentLauncher from 'expo-intent-launcher';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
 import { RELEASES_API_URL, RELEASES_PAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '@/constants/releases';
 import { isNewerVersion } from '@/core/version';
+
+export const UPDATE_APK_FILENAME = 'boee-update.apk';
+const APK_MIME_TYPE = 'application/vnd.android.package-archive';
+const VIEW_ACTION = 'android.intent.action.VIEW';
+const GRANT_READ_URI_PERMISSION = 1;
 
 export type UpdateCheckErrorCode = 'network' | 'invalid' | 'timeout';
 
@@ -20,6 +28,7 @@ export class UpdateCheckError extends Error {
 export interface ReleaseAsset {
   name: string;
   browser_download_url: string;
+  size?: unknown;
 }
 
 export interface LatestRelease {
@@ -28,6 +37,7 @@ export interface LatestRelease {
   htmlUrl: string;
   publishedAt: string | null;
   apkUrl: string | null;
+  apkSize: number | null;
 }
 
 export interface UpdateStatus {
@@ -45,14 +55,19 @@ export function getCurrentVersion(): string | null {
   return typeof version === 'string' && version.length > 0 ? version : null;
 }
 
-export function pickApkAsset(assets: ReleaseAsset[]): string | null {
-  const apk = assets.find(
-    (asset) =>
-      typeof asset.name === 'string' &&
-      asset.name.toLowerCase().endsWith('.apk') &&
-      typeof asset.browser_download_url === 'string',
+export function pickApkAsset(assets: ReleaseAsset[]): ReleaseAsset | null {
+  return (
+    assets.find(
+      (asset) =>
+        typeof asset.name === 'string' &&
+        asset.name.toLowerCase().endsWith('.apk') &&
+        typeof asset.browser_download_url === 'string',
+    ) ?? null
   );
-  return apk?.browser_download_url ?? null;
+}
+
+function apkSizeOf(asset: ReleaseAsset | null): number | null {
+  return typeof asset?.size === 'number' && Number.isFinite(asset.size) ? asset.size : null;
 }
 
 export async function fetchLatestRelease(signal?: AbortSignal): Promise<LatestRelease> {
@@ -91,13 +106,15 @@ export async function fetchLatestRelease(signal?: AbortSignal): Promise<LatestRe
     throw new UpdateCheckError('invalid');
   }
   const assets = Array.isArray(release.assets) ? (release.assets as ReleaseAsset[]) : [];
+  const apk = pickApkAsset(assets);
   return {
     tag: release.tag_name,
     name:
       typeof release.name === 'string' && release.name.length > 0 ? release.name : release.tag_name,
     htmlUrl: release.html_url,
     publishedAt: typeof release.published_at === 'string' ? release.published_at : null,
-    apkUrl: pickApkAsset(assets),
+    apkUrl: apk?.browser_download_url ?? null,
+    apkSize: apkSizeOf(apk),
   };
 }
 
@@ -137,4 +154,54 @@ export async function openUpdateUrl(url: string): Promise<void> {
 
 export function releasesPageUrl(): string {
   return RELEASES_PAGE_URL;
+}
+
+export function canInstallInPlace(url: string | null): boolean {
+  return (
+    Platform.OS === 'android' &&
+    Constants.appOwnership !== 'expo' &&
+    typeof url === 'string' &&
+    url.toLowerCase().endsWith('.apk')
+  );
+}
+
+export interface UpdateDownload {
+  task: DownloadTask;
+  done: Promise<File | null>;
+  file: File;
+}
+
+export function startUpdateDownload(
+  url: string,
+  onProgress?: (bytesWritten: number, totalBytes: number) => void,
+): UpdateDownload {
+  const file = new File(Paths.cache, UPDATE_APK_FILENAME);
+  if (file.exists) {
+    file.delete();
+  }
+  const task = File.createDownloadTask(url, file, {
+    onProgress: (data) => onProgress?.(data.bytesWritten, data.totalBytes),
+  });
+  const done = task.downloadAsync().catch((error: unknown) => {
+    if (file.exists) {
+      file.delete();
+    }
+    if (error instanceof UpdateCheckError) {
+      throw error;
+    }
+    throw new UpdateCheckError('network');
+  });
+  return { task, done, file };
+}
+
+export function getInstallContentUri(file: File): Promise<string> {
+  return getContentUriAsync(file.uri);
+}
+
+export function installUpdateApk(contentUri: string): Promise<unknown> {
+  return IntentLauncher.startActivityAsync(VIEW_ACTION, {
+    data: contentUri,
+    flags: GRANT_READ_URI_PERMISSION,
+    type: APK_MIME_TYPE,
+  });
 }

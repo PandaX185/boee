@@ -92,6 +92,19 @@ phone from ~2015 on; no x86 emulator support). If you need an emulator build,
 add `,x86_64` to `reactNativeArchitectures`. R8 can occasionally break
 reflection-based libraries, so smoke-test the installed APK after enabling it.
 
+### In-place updates
+
+The header update button installs releases without piling up one APK per version
+in Downloads: on standalone Android it downloads the release APK into the app
+cache under a single fixed filename (`boee-update.apk`, overwritten every time)
+and opens the system installer via a `content://` URI
+(`src/services/appUpdate.ts`, `src/components/UpdateModal.tsx`).
+This needs the `REQUEST_INSTALL_PACKAGES` permission in `app.json`; on first
+install Android asks once to allow installs from BOEE. Other platforms (and Expo
+Go) keep the old behavior of opening the release in the browser. The permission
+is acceptable for internal distribution but would need a Play policy declaration
+if the app is ever submitted to the store.
+
 One-time setup (all manual, needs an Expo account):
 
 ```bash
